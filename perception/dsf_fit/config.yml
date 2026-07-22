@@ -1,0 +1,22 @@
+dsf:
+  i_ub: 0.8 # 높을 수록 center가 DSF의 가장자리에 더 가까이까지 위치할 수 있음 
+  p_max: 60 # DSF의 최대 sharpness. 높을수록 모서리/꼭짓점이 더 날카로워짐
+
+optimizer:
+  num_vertices: 48 # DSF fitting vertex count. 클수록 복잡하고 날카로운 형상을 표현 가능
+  n_sub_sample: 4 # cost 계산에 사용할 sample direction의 subdivision 정도
+  max_iter: 300   # least square 솔버의 최대 iteration 수
+  support_quantile: 0.999 # 1.0이면 기존 max support, 낮출수록 외곽 outlier에 robust
+  loss: linear # scipy least_squares robust loss: linear, soft_l1, huber, cauchy, arctan
+  f_scale: 0.05 # robust loss scale in meters. 너무 작으면 sharp feature가 outlier처럼 무시될 수 있음
+  ransac:
+    enabled: true
+    n_iter: 5
+    sample_ratio: 0.5
+    min_sample_points: 200
+    max_sample_points: 2000
+    fit_max_iter: 25
+    inlier_threshold: 0.03
+    min_inlier_ratio: 0.5
+    score_n_sub_sample: 2
+    seed: null

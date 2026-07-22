@@ -1,0 +1,212 @@
+device: "cuda:0"
+
+algorithm: 
+  name: bc_mcts
+  mcts:
+    max_depth: 3 # deepest node depth; root = 0, so 1 = root children only (no lookahead)
+    initial_depth1_steps: 10 # first N placements use depth 1; 0 disables
+    tree_simulation_depth: 3 # deepest node depth run with short simulation; null -> 3. Set >= max_depth to simulate the whole tree
+    n_iter: 120
+    max_search_time: 500.0 # seconds; null/<=0 disables the wall-clock guard
+    max_children_num: 32
+    validation:
+      max_candidates: 8
+      debug_extra_candidates: 8
+    root_proposal:
+      population: 96
+      keep: 12
+      mutation_xy_std: 0.01
+      duplicate_xy_threshold: 0.003 # 0.1x normal-scale CEM XY deduplication distance
+      mutation_yaw_std_deg: 20.0
+      fresh_fraction: 0.3
+      height_map_score_weight: 1.0
+      max_per_stone: 8         # max CEM candidates per stone in elite/keep sets; null disables
+    widening:
+      enabled: True
+      c: 3.0
+      alpha: 0.5
+    action_generation:
+      batch_size: 32
+      expansion_retry_batches: 3
+      min_feasible_children: 3
+      root_sampling_priority: "lower_floor_first"
+      execution_rejection:
+        enabled: True
+        hard_filter: True
+    exploration_constant: 2.0
+    confidence: 0.0
+    reward:
+      mean: 2.5 # tuned expected per-step shaped reward for value-estimate projection; measured 2.489 over 85,550 MCTS sampling rows (260705)
+      discount: 0.9
+      optimality: 0.1
+      value_estimate:
+        horizon: 4
+      terminal_weight: 1.0
+      backprop_terminal: True
+
+qfunction:
+  load: False
+  load_dir : "./.results/models/model_rl_v2.pkl"
+  config: "./agent/configs/qfunction.yml"  
+
+resource:
+  num_gpus:    1.0
+  num_cpus:    24.0
+  num_workers: 0
+environment:
+  n_stone: 49
+  data:
+    load_dir: "assets/stone"
+    limit_candidates: 30
+  reward:
+    weights:
+      stability: 0.5
+      stone_IoU: 2.0
+      target_IoU_increment: 20.0
+      place_stability: 0.5
+      large_stone_lower: 3.0
+      inward_orientation: 2.0
+      support: 0.3
+    vel_integral_thresh: 0.05 # velocity integral has distance units; 0.1x normal scale
+    posegen_thresh: 1.0
+    IoU_thresh: 0.7
+    place_stability:
+      enabled: True
+      n_noise: 4
+      position_std: [0.002, 0.002, 0.005] # (m)
+      rotation_std_deg: 5.0
+      rotation_weight: 0.01 # (m/rad), 0.0 means translation-only displacement
+      nonfinite_displacement: 0.2
+      max_displacement: 0.1 # reward clipping distance; 0.1x normal scale
+      fail_displacement: null # null disables the simulation-level hard reject; soft reward signal only
+      seed: 0
+    support:
+      desired_sources: 2
+      ground_z: 0.0
+      use_diffsim_contacts: True
+      contact_gap_tolerance: 0.01
+      contact_fallback_to_geometry: True
+  target:
+    width:  0.25
+    length: 0.35
+    height: 0.20
+    taper:  5.0 # (deg)
+    origin: [0.0, 0.0]
+    randomize: False
+  sim:
+    dt: 0.00316  # sqrt(0.1) time scale: real gravity, 10x smaller drop height settles faster
+    energy_thresh: 0.00000001  # (0.1)^4 scale: KE ~ mass * velocity^2 ~ s^3 * s = s^4
+    settle_n_step: 400  # (steps) freeze all existing stones and let new stone settle; 0 disables; unchanged since dt already carries the time scaling
+    short:
+      max_t: 1.26  # sqrt(0.1) time scale
+      min_t: 0.16  # sqrt(0.1) time scale
+      extra_n_step: 20  # (steps) unchanged; dt already carries the time scaling
+      freeze_radius: 0.15  # freeze distant non-support stones during tree search
+    long:
+      max_t: 4.74  # sqrt(0.1) time scale
+      min_t: 0.95  # sqrt(0.1) time scale
+      extra_n_step: 150  # (steps) unchanged; dt already carries the time scaling
+      freeze_radius: 0  # fully dynamic structural validation
+  action:
+    banned_stone_ids: []
+    posegen_boundary_radius: 0.05  # (m) placed stones whose XY distance from the target-wall region exceeds this are treated as static "boundary" supports in posegen (contacts kept, equilibrium not solved); null disables
+    posegen_target_only: True  # tabletop target box is the whole scene, so posegen_boundary_radius never triggers (nothing is ever outside it); force every already-placed stone to be a rigid boundary and equilibrium-solve only the new candidate each step, instead of the free-body set growing by one every placement
+    debug_rejection_counts:
+      enabled: True
+      print: False
+    initial_height_clearance: 0.015 # 0.1x normal-scale clearance above the ground/placed stones
+    initial_height_xy_padding: 0.012 # 0.1x normal-scale overlap padding
+    initial_height_mesh_source: "ply" # "hull" | "ply"; ply matches candidate visualization better
+    posegen_gap_threshold: 0.0005 # reject posegen actions whose c_gap penetration residual exceeds this
+    large_stone_height_limit:
+      enabled: True
+      volume_percentile: 0.6   # stones above this volume percentile are "large"
+      max_height_fraction: 0.5 # large stones must initialise below this fraction of wall height
+    mesh_face_fit:
+      enabled: False
+      max_rotation_deg: 45.0
+      max_pre_icp_xy_translation: 0.05
+      max_pre_icp_patch_translation: 0.05
+      icp_max_xy_translation: 0.008
+    support_constraint:
+      enabled: True
+      hard_filter: False
+      connected_ground:
+        enabled: True
+        allow_lower_fill: True
+        max_xy_gap: 0.01
+      z_tolerance: 0.02
+      pair_z_tolerance: 0.035
+      contact_z_tolerance: 0.02
+      contact_xy_margin: 0.004
+      contact_match_tolerance: 0.003
+      large_below_volume_ratio: 2.0
+      stable_single_support_fallback:
+        enabled: True
+        max_place_displacement: 0.012
+      frontier_fill:
+        boundary_inset_radius_scale: 1.25
+    pose_from_scan: False
+    pose_data_path: "sessions/pose_data_260707_1.pkl"
+    n_action_samples: 96
+    max_pose_per_stone: 32
+    rotation:
+      angles_x: [0, 90]
+      angles_z: [0, 90, 180, 270]
+    planar:
+      variance: 0.0 # (m)
+      score_model: "score"     # "score" | "heuristic" | "cnn"
+      score_map_size: [32, 32]     # [W, H]; null keeps height_map/4 for heuristic
+      boltzmann_temperature: 0.3
+      boltzmann_min_probability: 0.0
+      target_mask_margin: 0.0
+      score:
+        height: -3.0
+        connectedness: 2.0
+        open_area: 1.0
+        fill_area: 2.0
+        frontier: 1.0
+        target_boundary: 1.5
+        excavator_distance: 2.0
+        excavator_distance_axis: "xy" # "xy" | "x" | "y"
+        excavator_xy: null # planner-local XY; generate_sequence sets this from target_structure_offset
+        elite_fraction: 0.25 # deterministic top-score XY fraction before stochastic sampling
+      floor_fill:
+        connected_after: 1
+        u_shape_filter: False
+        u_shape_footprint_scale: 0.9
+        u_shape_require_frontier_contact: False
+        u_shape_min_frontier_contact_cells: 1
+        u_shape_min_empty_cells: 4
+        u_shape_min_contact_cells: 6
+        u_shape_max_opening_ratio: 0.40
+        lower_floor_fill_ratio: 0.90
+        lower_floor_occupancy_grid: 32
+        lower_floor_bottom_z_tolerance: 0.02
+        lower_floor_max_initial_z_above_lowest_top: 0.065
+        lower_floor_fill_reject_stacked: False # optional hard rejection; keep false to avoid starving MCTS candidates
+        ground_fill_stack_reject_margin: 0.008 # candidate bottom must be below ground-layer top + margin
+        boundary_inset_radius_scale: 0.6
+        orientation:
+          enabled: True
+          hard_filter: False
+          boundary_margin_radius_scale: 1.5
+          offsets_deg: [0, -45, 45, 180]
+          upper_face_min_z: 0.0
+          upper_face_min_horizontal: 0.05
+          min_upward_dot: 0.7
+          max_inward_angle_deg: 40.0
+      print_feasible_region: True
+      print_feasible_region_once: True
+      debug_maps:
+        enabled: False
+        steps: [4, 5]
+        output_dir: ".debug/height_score_maps"
+        max_dumps_per_step: 1
+      cnn:
+        config: "./agent/configs/heightmap_value.yml"
+        weights: ""            # path to a .pkl/.pt state_dict; empty = untrained
+  height_map:
+    resolution: [128, 128]     # (W, H) of the rendered depth image
+    margin: 0.1                # (m) padding around target wall in the ortho frame
+  reset_interval: 24

@@ -1,0 +1,20 @@
+parser:
+  angle: deg
+
+global:
+  gravity_norm: 9.81
+  solver:
+    damping: 0.005
+    beta_init: 1.0
+    beta_update_interval: 50
+    max_iter: 2000
+    tol_abs:  0.0001
+    tol_rel:  0.00001
+  contact:
+    type: limit_surface_4d
+    error_reduction_ratio: 0.1
+
+body:
+  - geometry:
+      - type: plane
+        mu: 10.0
