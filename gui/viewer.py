@@ -67,7 +67,7 @@ def _pcd_to_dict(pcd, default_color=None):
     }
 
 
-def _viewer_process_main(cmd_queue, window_name: str):
+def _viewer_process_main(cmd_queue, window_name: str, initial_zoom):
     """Subprocess entrypoint: owns the Open3D Visualizer."""
     # Local imports — keep Open3D entirely out of the parent process.
     import open3d as o3d_p
@@ -252,7 +252,11 @@ def _viewer_process_main(cmd_queue, window_name: str):
                             except Exception:
                                 continue
                         for g in current:
-                            vis.add_geometry(g, reset_bounding_box=first_geom)
+                            vis.add_geometry(g, reset_bounding_box=False)
+                        if first_geom and current:
+                            vis.reset_view_point(reset_bounding_box=True)
+                            if initial_zoom is not None:
+                                vis.get_view_control().set_zoom(initial_zoom)
                             first_geom = False
             except _queue.Empty:
                 pass
@@ -281,13 +285,17 @@ class Open3DViewer:
     ``(mesh, [r, g, b])`` tuples to specify a uniform colour.
     """
 
-    def __init__(self, window_name: str = "Excavator Stacking Viewer"):
+    def __init__(
+        self,
+        window_name: str = "Excavator Stacking Viewer",
+        initial_zoom: float | None = None,
+    ):
         # ``spawn`` gives a fresh interpreter with no Qt/CUDA/Ray state.
         ctx = _mp.get_context("spawn")
         self._queue = ctx.Queue(maxsize=8)
         self._proc = ctx.Process(
             target=_viewer_process_main,
-            args=(self._queue, window_name),
+            args=(self._queue, window_name, initial_zoom),
             daemon=True,
         )
         self._proc.start()

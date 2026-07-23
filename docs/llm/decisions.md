@@ -25,6 +25,27 @@ they carry over silently.
 ## Decided So Far For This Project
 
 - Desktop-only compute topology: no onboard NUC leg; the desktop talks directly to the manipulator and cameras.
+- **Self-contained UR5e model URDF (2026-07-23):**
+  `assets/ur5e/ur5e.urdf` is a flattened model derived from the sibling
+  `Universal_Robots_ROS2_Description` checkout, so tabletop visualization and
+  diffsim FK do not require ROS package lookup or xacro at runtime. Mesh paths
+  are relative to the URDF. The upstream collision STL meshes are used as
+  visual geometry because the current Open3D environment cannot load the
+  upstream Collada files. Ordinary URDF `<collision><mesh>` elements are
+  intentionally omitted: diffsim's planner requires its custom `dsf_vert`
+  collision geometry, and treating an ordinary mesh as a collision geometry
+  currently leaves a null collision body. Robot collision checking therefore
+  remains pending generation of UR5e DSF assets.
+- **SR gripper mounting on UR5e (2026-07-23):** The full visualization model
+  mounts `sr_gripper_base_link` rigidly and coincident with UR5e `tool0`
+  (`xyz="0 0 0"`, `rpy="0 0 0"`). The gripper extends along the tool frame's
+  local +Z axis. `assets/ur5e/ur5e.urdf` contains all four finger joints,
+  mirroring the excavator's full arm-plus-gripper visualization URDF; the
+  viewer synchronizes those joints through one gripper control using
+  `[left_1, left_2, right_1, right_2] = [theta, -theta, theta, -theta]`.
+  This makes the full model 10-DOF, so it is not the six-axis diffsim planning model.
+  Preparing the end-effector-only `ur5e_ik.urdf` and SR-gripper `dsf_vert`
+  collision model remains separate work.
 - **Principal-axis re-alignment of placement orientation (2026-07-23):** In the
   default grid sampling path (`PlanarSampler._mixed_grid_poses` else-branch),
   the base placement orientation is no longer the raw asset frame. Each stone is

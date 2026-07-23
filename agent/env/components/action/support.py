@@ -647,6 +647,7 @@ def ground_placement_connected_ok(
     target = inventory.stones[int(stone_idx)]
     target_polygon = _stone_world_xy_polygon(target, pose, xy_factor)
 
+    min_gap = float("inf")
     for placed_idx in placed_indices:
         placed = inventory.stones[int(placed_idx)]
         placed_pose = state.stone_poses.get(placed.id, None)
@@ -658,8 +659,13 @@ def ground_placement_connected_ok(
             placed_pose,
             xy_factor,
         )
-        if _convex_polygon_gap(target_polygon, placed_polygon) <= max_gap:
+        gap = _convex_polygon_gap(target_polygon, placed_polygon)
+        min_gap = min(min_gap, gap)
+        if gap <= max_gap:
             return True
+    import os
+    if os.environ.get("DEBUG_ISOLATED_GAP"):
+        print(f"[isolated_ground_support] stone_idx={stone_idx} min_gap={min_gap:.5f} max_gap={max_gap} n_placed={len(placed_indices)}", flush=True)
     return False
 
 

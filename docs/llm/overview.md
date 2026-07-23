@@ -35,7 +35,7 @@ Stacking-Tabletop re-implements the manipulator-based stone-stacking planner as
 a tabletop system driven by a robot manipulator (likely a UR5e). Key intended
 changes from `stacking-planner`:
 
-- **Robot**: manipulator + bucket/gripper -> manipulator arm (UR5e candidate) with an end effector TBD.
+- **Robot**: excavator + bucket/gripper -> UR5e manipulator with an SR gripper.
 - **Compute topology**: desktop + onboard NUC over Wi-Fi -> **desktop only**, talking directly to the manipulator and cameras. There is no NUC leg in this project.
 - **Scene/pose identification**: LiDAR sweep + ICP/SceneID reconstruction -> likely camera-based, possibly using **AprilTag** fiducials for stone/scene pose identification. This is explicitly still open and to be decided/validated, not yet implemented.
 - **Scale**: tabletop-scale stones/workspace instead of field-scale stones, which likely affects sensor choice, motion planning limits, and physical tuning constants (these are not yet re-derived).
@@ -43,7 +43,8 @@ changes from `stacking-planner`:
 What is likely still reusable largely as-is (algorithmic core, hardware-agnostic):
 
 - `agent/` MCTS search, CEM root proposal, environment/state/action components.
-- `planning/planning.py` diffsim planner setup for grasp/IK/motion (end-effector-specific bindings will need revisiting for a parallel-jaw/manipulator gripper instead of the manipulator gripper).
+- `planning/planning.py` diffsim planner setup for grasp/IK/motion
+  (end-effector-specific bindings still need adapting for the SR gripper).
 - `perception/reconstruction_*` stone-model reconstruction pipeline (mesh/DSF fitting from point clouds), if the new perception stack still produces point clouds per stone.
 - `loader/`, `trainer/`-adjacent training scripts for BC-MCTS / height-map models, to the extent training data generation stays hardware-agnostic.
 
@@ -86,7 +87,8 @@ What needs to be redesigned (not yet started):
 
 ## TODO
 
-- Decide manipulator hardware (UR5e assumed but not confirmed) and end effector.
+- Prepare the six-axis UR5e IK model and diffsim-compatible SR-gripper
+  collision assets.
 - Decide scene/pose identification approach (AprilTag vs. other) and validate feasibility for tabletop stones.
 - Scope which manipulator-specific modules to delete vs. adapt vs. rewrite from scratch.
 - Re-derive physical scale/tuning constants for tabletop stones and a manipulator workspace.

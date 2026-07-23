@@ -13,6 +13,7 @@ from utils.dsf import DiffSupportSimple
 from utils.geometry import fix_normals_outward
 
 MANIPULATOR_PATH = os.path.join(os.getcwd(), "assets/excavator")
+UR5E_PATH = os.path.join(os.getcwd(), "assets/ur5e")
 GRIPPER_PATH = os.path.join(os.getcwd(), "assets/stone_grab")
 
 
@@ -118,6 +119,50 @@ def get_excavator_model() -> Tuple[urdf.URDF, Dict[str, o3d.geometry.TriangleMes
         mesh = o3d.io.read_triangle_mesh(geom.mesh_path)
         if mesh.is_empty():
             raise FileNotFoundError(f"Mesh empty or not found: {geom.mesh_path}")
+
+        mesh_scale = geom.mesh_scale if geom.mesh_scale is not None else [1, 1, 1]
+        apply_nonuniform_scale(mesh, mesh_scale, np.zeros(3))
+        mesh.compute_vertex_normals()
+        mesh.compute_triangle_normals()
+        link_meshes[name] = mesh
+
+    return model, link_meshes
+
+
+def get_ur5e_model() -> Tuple[urdf.URDF, Dict[str, o3d.geometry.TriangleMesh]]:
+    urdf_path = os.path.join(UR5E_PATH, "ur5e.urdf")
+    if not os.path.exists(urdf_path):
+        raise FileNotFoundError(f"URDF file not found: {urdf_path}")
+
+    model = urdf.URDF()
+    model.Parse(urdf_path)
+
+    link_names = [
+        "base_link_inertia",
+        "shoulder_link",
+        "upper_arm_link",
+        "forearm_link",
+        "wrist_1_link",
+        "wrist_2_link",
+        "wrist_3_link",
+        "sr_gripper_base_link",
+        "sr_gripper_left_finger_link_1",
+        "sr_gripper_left_finger_link_2",
+        "sr_gripper_right_finger_link_1",
+        "sr_gripper_right_finger_link_2",
+        "sr_gripper_right_finger_lower_pad",
+    ]
+    link_meshes = {}
+    for name in link_names:
+        link = model.GetLink(name)
+        geom = link.geoms[0]
+        mesh_path = pathlib.Path(geom.mesh_path)
+        if not mesh_path.is_absolute():
+            mesh_path = pathlib.Path(urdf_path).parent / mesh_path
+
+        mesh = o3d.io.read_triangle_mesh(str(mesh_path))
+        if mesh.is_empty():
+            raise FileNotFoundError(f"Mesh empty or not found: {mesh_path}")
 
         mesh_scale = geom.mesh_scale if geom.mesh_scale is not None else [1, 1, 1]
         apply_nonuniform_scale(mesh, mesh_scale, np.zeros(3))

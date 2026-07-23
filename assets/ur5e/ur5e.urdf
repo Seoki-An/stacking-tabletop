@@ -1,0 +1,378 @@
+<?xml version="1.0"?>
+<!--
+  Flattened UR5e model for stacking-tabletop and diffsim.
+
+  Source:
+    ../Universal_Robots_ROS2_Description
+    urdf/ur_macro.xacro
+    config/ur5e/{default_kinematics,joint_limits,physical_parameters,
+                 visual_parameters}.yaml
+
+  Mesh paths are relative to this file so the model does not require a ROS
+  package index or xacro at runtime. The official collision STL meshes are
+  also used for visualization because the project's Open3D build does not
+  load the upstream Collada visual meshes. They intentionally remain visual
+  elements: diffsim collision bodies require its custom dsf_vert geometry,
+  not ordinary URDF collision meshes. The kinematic values are the upstream
+  default UR5e calibration; replace them with the physical robot's calibration
+  before relying on the model for accurate execution.
+-->
+<robot name="ur5e">
+  <material name="ur_blue">
+    <color rgba="0.0 0.482 0.655 1.0"/>
+  </material>
+  <material name="ur_light_grey">
+    <color rgba="0.7 0.7 0.7 1.0"/>
+  </material>
+  <material name="sr_dark_grey">
+    <color rgba="0.25 0.25 0.28 1.0"/>
+  </material>
+
+  <link name="world"/>
+
+  <!-- REP-103-aligned root frame. -->
+  <link name="base_link"/>
+
+  <!-- The inertial and mesh-bearing base frame uses the UR controller axes. -->
+  <link name="base_link_inertia">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 3.141592653589793"/>
+      <geometry>
+        <mesh filename="collision/base.stl"/>
+      </geometry>
+      <material name="ur_light_grey"/>
+    </visual>
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="4.0"/>
+      <inertia
+        ixx="0.0044333332" ixy="0.0" ixz="0.0"
+        iyy="0.0044333332" iyz="0.0" izz="0.0072"/>
+    </inertial>
+  </link>
+
+  <link name="shoulder_link">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 3.141592653589793"/>
+      <geometry>
+        <mesh filename="collision/shoulder.stl"/>
+      </geometry>
+      <material name="ur_blue"/>
+    </visual>
+    <inertial>
+      <origin xyz="0 -0.00193 -0.02561"
+              rpy="1.570796326794897 0 0"/>
+      <mass value="3.761"/>
+      <inertia
+        ixx="0.00700210" ixy="0.00000073" ixz="-0.00001053"
+        iyy="0.00648091" iyz="0.00049994" izz="0.00657286"/>
+    </inertial>
+  </link>
+
+  <link name="upper_arm_link">
+    <visual>
+      <origin xyz="0 0 0.138"
+              rpy="1.570796326794897 0 -1.570796326794897"/>
+      <geometry>
+        <mesh filename="collision/upperarm.stl"/>
+      </geometry>
+      <material name="ur_light_grey"/>
+    </visual>
+    <inertial>
+      <origin xyz="-0.2125 0 0.11336" rpy="0 0 0"/>
+      <mass value="8.058"/>
+      <inertia
+        ixx="0.01505885" ixy="-0.00005400" ixz="0.00000563"
+        iyy="0.33388086" iyz="-0.00000181" izz="0.33247207"/>
+    </inertial>
+  </link>
+
+  <link name="forearm_link">
+    <visual>
+      <origin xyz="0 0 0.007"
+              rpy="1.570796326794897 0 -1.570796326794897"/>
+      <geometry>
+        <mesh filename="collision/forearm.stl"/>
+      </geometry>
+      <material name="ur_light_grey"/>
+    </visual>
+    <inertial>
+      <origin xyz="-0.2422 0 0.0265" rpy="0 0 0"/>
+      <mass value="2.846"/>
+      <inertia
+        ixx="0.00399632" ixy="-0.00001365" ixz="0.00137272"
+        iyy="0.07879254" iyz="-0.00000660" izz="0.07848510"/>
+    </inertial>
+  </link>
+
+  <link name="wrist_1_link">
+    <visual>
+      <origin xyz="0 0 -0.127" rpy="1.570796326794897 0 0"/>
+      <geometry>
+        <mesh filename="collision/wrist1.stl"/>
+      </geometry>
+      <material name="ur_blue"/>
+    </visual>
+    <inertial>
+      <origin xyz="0 -0.01634 -0.0018"
+              rpy="1.570796326794897 0 0"/>
+      <mass value="1.37"/>
+      <inertia
+        ixx="0.00165491" ixy="-0.00000282" ixz="-0.00000438"
+        iyy="0.00135962" iyz="0.00010157" izz="0.00126279"/>
+    </inertial>
+  </link>
+
+  <link name="wrist_2_link">
+    <visual>
+      <origin xyz="0 0 -0.0997" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="collision/wrist2.stl"/>
+      </geometry>
+      <material name="ur_blue"/>
+    </visual>
+    <inertial>
+      <origin xyz="0 0.01634 -0.0018"
+              rpy="-1.570796326794897 0 0"/>
+      <mass value="1.3"/>
+      <inertia
+        ixx="0.00135617" ixy="-0.00000274" ixz="0.00000444"
+        iyy="0.00127827" iyz="-0.00005048" izz="0.00096614"/>
+    </inertial>
+  </link>
+
+  <link name="wrist_3_link">
+    <visual>
+      <origin xyz="0 -0.0005 -0.0989"
+              rpy="1.570796326794897 0 0"/>
+      <geometry>
+        <mesh filename="collision/wrist3.stl"/>
+      </geometry>
+      <material name="ur_light_grey"/>
+    </visual>
+    <inertial>
+      <origin xyz="0 0 -0.001159" rpy="0 0 0"/>
+      <mass value="0.365"/>
+      <inertia
+        ixx="0.00018694" ixy="0.00000006" ixz="-0.00000017"
+        iyy="0.00018908" iyz="-0.00000092" izz="0.00025756"/>
+    </inertial>
+  </link>
+
+  <joint name="world_joint" type="fixed">
+    <parent link="world"/>
+    <child link="base_link"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
+
+  <joint name="base_link-base_link_inertia" type="fixed">
+    <parent link="base_link"/>
+    <child link="base_link_inertia"/>
+    <origin xyz="0 0 0" rpy="0 0 3.141592653589793"/>
+  </joint>
+
+  <joint name="shoulder_pan_joint" type="revolute">
+    <parent link="base_link_inertia"/>
+    <child link="shoulder_link"/>
+    <origin xyz="0 0 0.1625" rpy="0 0 0"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-6.283185307179586" upper="6.283185307179586"
+           effort="150.0" velocity="3.141592653589793"/>
+    <dynamics damping="0" friction="0"/>
+  </joint>
+
+  <joint name="shoulder_lift_joint" type="revolute">
+    <parent link="shoulder_link"/>
+    <child link="upper_arm_link"/>
+    <origin xyz="0 0 0" rpy="1.570796327 0 0"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-6.283185307179586" upper="6.283185307179586"
+           effort="150.0" velocity="3.141592653589793"/>
+    <dynamics damping="0" friction="0"/>
+  </joint>
+
+  <joint name="elbow_joint" type="revolute">
+    <parent link="upper_arm_link"/>
+    <child link="forearm_link"/>
+    <origin xyz="-0.425 0 0" rpy="0 0 0"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-3.141592653589793" upper="3.141592653589793"
+           effort="150.0" velocity="3.141592653589793"/>
+    <dynamics damping="0" friction="0"/>
+  </joint>
+
+  <joint name="wrist_1_joint" type="revolute">
+    <parent link="forearm_link"/>
+    <child link="wrist_1_link"/>
+    <origin xyz="-0.3922 0 0.1333" rpy="0 0 0"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-6.283185307179586" upper="6.283185307179586"
+           effort="28.0" velocity="3.141592653589793"/>
+    <dynamics damping="0" friction="0"/>
+  </joint>
+
+  <joint name="wrist_2_joint" type="revolute">
+    <parent link="wrist_1_link"/>
+    <child link="wrist_2_link"/>
+    <origin xyz="0 -0.0997 -2.044881182297852e-11"
+            rpy="1.570796327 0 0"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-6.283185307179586" upper="6.283185307179586"
+           effort="28.0" velocity="3.141592653589793"/>
+    <dynamics damping="0" friction="0"/>
+  </joint>
+
+  <joint name="wrist_3_joint" type="revolute">
+    <parent link="wrist_2_link"/>
+    <child link="wrist_3_link"/>
+    <origin xyz="0 0.0996 -2.042830148012698e-11"
+            rpy="1.570796326589793 3.141592653589793 3.141592653589793"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-6.283185307179586" upper="6.283185307179586"
+           effort="28.0" velocity="3.141592653589793"/>
+    <dynamics damping="0" friction="0"/>
+  </joint>
+
+  <!-- Force/torque sensor, controller, and tool attachment frames. -->
+  <link name="ft_frame"/>
+  <joint name="wrist_3_link-ft_frame" type="fixed">
+    <parent link="wrist_3_link"/>
+    <child link="ft_frame"/>
+    <origin xyz="0 0 0" rpy="3.141592653589793 0 0"/>
+  </joint>
+
+  <link name="base"/>
+  <joint name="base_link-base_fixed_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="base"/>
+    <origin xyz="0 0 0" rpy="0 0 3.141592653589793"/>
+  </joint>
+
+  <link name="flange"/>
+  <joint name="wrist_3-flange" type="fixed">
+    <parent link="wrist_3_link"/>
+    <child link="flange"/>
+    <origin xyz="0 0 0"
+            rpy="0 -1.570796326794897 -1.570796326794897"/>
+  </joint>
+
+  <link name="tool0"/>
+  <joint name="flange-tool0" type="fixed">
+    <parent link="flange"/>
+    <child link="tool0"/>
+    <origin xyz="0 0 0"
+            rpy="1.570796326794897 0 1.570796326794897"/>
+  </joint>
+
+  <!--
+    SR gripper assembly.
+
+    This mirrors the excavator model's fixed attachment of grip_body to the
+    terminal arm link. The gripper base frame is coincident with tool0 and its
+    +Z axis points away from the UR5e flange.
+  -->
+  <link name="sr_gripper_base_link">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="../sr_gripper/meshes/visual/link0.obj"/>
+      </geometry>
+      <material name="sr_dark_grey"/>
+    </visual>
+  </link>
+  <joint name="sr_gripper_mount_joint" type="fixed">
+    <parent link="tool0"/>
+    <child link="sr_gripper_base_link"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
+
+  <link name="sr_gripper_left_finger_link_1">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="../sr_gripper/meshes/visual/link1.obj"/>
+      </geometry>
+      <material name="sr_dark_grey"/>
+    </visual>
+  </link>
+  <joint name="sr_gripper_left_finger_joint_1" type="revolute">
+    <parent link="sr_gripper_base_link"/>
+    <child link="sr_gripper_left_finger_link_1"/>
+    <origin xyz="0.03 0 0.11" rpy="0 0 3.141592653589793"/>
+    <axis xyz="0 -1 0"/>
+    <limit lower="0.0" upper="0.9" effort="100.0" velocity="1.0"/>
+  </joint>
+
+  <link name="sr_gripper_left_finger_link_2">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="../sr_gripper/meshes/visual/link2.obj"/>
+      </geometry>
+      <material name="sr_dark_grey"/>
+    </visual>
+  </link>
+  <joint name="sr_gripper_left_finger_joint_2" type="revolute">
+    <parent link="sr_gripper_left_finger_link_1"/>
+    <child link="sr_gripper_left_finger_link_2"/>
+    <origin xyz="0 0 0.07" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+    <limit lower="-0.9" upper="0.0" effort="100.0" velocity="1.0"/>
+    <mimic joint="sr_gripper_left_finger_joint_1"
+           multiplier="-1.0" offset="0.0"/>
+  </joint>
+
+  <link name="sr_gripper_right_finger_link_1">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="../sr_gripper/meshes/visual/link1.obj"/>
+      </geometry>
+      <material name="sr_dark_grey"/>
+    </visual>
+  </link>
+  <joint name="sr_gripper_right_finger_joint_1" type="revolute">
+    <parent link="sr_gripper_base_link"/>
+    <child link="sr_gripper_right_finger_link_1"/>
+    <origin xyz="-0.03 0 0.11" rpy="0 0 0"/>
+    <axis xyz="0 -1 0"/>
+    <limit lower="0.0" upper="0.9" effort="100.0" velocity="1.0"/>
+    <mimic joint="sr_gripper_left_finger_joint_1"
+           multiplier="1.0" offset="0.0"/>
+  </joint>
+
+  <link name="sr_gripper_right_finger_link_2">
+    <visual>
+      <origin xyz="0 0.015 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="../sr_gripper/meshes/visual/link2.obj"/>
+      </geometry>
+      <material name="sr_dark_grey"/>
+    </visual>
+  </link>
+  <joint name="sr_gripper_right_finger_joint_2" type="revolute">
+    <parent link="sr_gripper_right_finger_link_1"/>
+    <child link="sr_gripper_right_finger_link_2"/>
+    <origin xyz="0 0 0.07" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+    <limit lower="-0.9" upper="0.0" effort="100.0" velocity="1.0"/>
+    <mimic joint="sr_gripper_left_finger_joint_1"
+           multiplier="-1.0" offset="0.0"/>
+  </joint>
+
+  <!-- The source gripper places a second pad 30 mm below the first one. -->
+  <link name="sr_gripper_right_finger_lower_pad">
+    <visual>
+      <origin xyz="0 0.015 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="../sr_gripper/meshes/visual/link2.obj"/>
+      </geometry>
+      <material name="sr_dark_grey"/>
+    </visual>
+  </link>
+  <joint name="sr_gripper_right_finger_lower_pad_joint" type="fixed">
+    <parent link="sr_gripper_right_finger_link_2"/>
+    <child link="sr_gripper_right_finger_lower_pad"/>
+    <origin xyz="0 -0.03 0" rpy="0 0 0"/>
+  </joint>
+</robot>
