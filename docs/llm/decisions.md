@@ -34,8 +34,9 @@ they carry over silently.
   upstream Collada files. Ordinary URDF `<collision><mesh>` elements are
   intentionally omitted: diffsim's planner requires its custom `dsf_vert`
   collision geometry, and treating an ordinary mesh as a collision geometry
-  currently leaves a null collision body. Robot collision checking therefore
-  remains pending generation of UR5e DSF assets.
+  currently leaves a null collision body. UR5e arm collision checking remains
+  pending generation of arm DSF assets; the attached SR gripper now has fitted
+  DSF collisions.
 - **SR gripper mounting on UR5e (2026-07-23):** The full visualization model
   mounts `sr_gripper_base_link` rigidly and coincident with UR5e `tool0`
   (`xyz="0 0 0"`, `rpy="0 0 0"`). The gripper extends along the tool frame's
@@ -43,9 +44,21 @@ they carry over silently.
   mirroring the excavator's full arm-plus-gripper visualization URDF; the
   viewer synchronizes those joints through one gripper control using
   `[left_1, left_2, right_1, right_2] = [theta, -theta, theta, -theta]`.
+  Both joint-2 axes use the same local direction as joint 1, so the negative
+  multiplier produces an opposite physical rotation. An opposite joint-2 axis
+  would invert the sign twice and bend both links in the same direction.
+  SR-gripper collision CAD meshes are seam-merged, decomposed with CoACD, and
+  fitted with the existing support-function optimizer at 12 nodes per convex
+  part. `link0` is split into two DSF OBJ files; `link1` and `link2` each use
+  one. Only the terminal `link2` pad geometries are marked as grasp contacts.
+  `scripts/test/ur5e_model.py` can overlay the actual smooth DSF surfaces from
+  every URDF collision entry for visual inspection.
+  The standalone `assets/sr_gripper/sr_gripper.urdf` has a floating
+  world-to-base joint, as required by diffsim's `Gripper`; the combined UR5e
+  model instead keeps the gripper rigidly mounted to `tool0`.
   This makes the full model 10-DOF, so it is not the six-axis diffsim planning model.
-  Preparing the end-effector-only `ur5e_ik.urdf` and SR-gripper `dsf_vert`
-  collision model remains separate work.
+  Preparing the end-effector-only `ur5e_ik.urdf` and wiring it into the
+  tabletop planner remain separate work.
 - **Principal-axis re-alignment of placement orientation (2026-07-23):** In the
   default grid sampling path (`PlanarSampler._mixed_grid_poses` else-branch),
   the base placement orientation is no longer the raw asset frame. Each stone is

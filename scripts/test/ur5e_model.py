@@ -4,6 +4,8 @@
 
 from __future__ import annotations
 
+import copy
+from pathlib import Path
 import sys
 
 import numpy as np
@@ -26,6 +28,8 @@ from PySide6.QtWidgets import (
 
 from gui.viewer import Open3DViewer
 from model import get_ur5e_model, update_urdf_mesh
+from utils.dsf import DiffSupportSimple
+from utils.wavefront import WavefrontImporter
 
 
 JOINTS = [
@@ -74,8 +78,61 @@ Q_HOME = np.concatenate(
 
 C_UR5E = [0.75, 0.75, 0.78]
 C_GRIPPER = [0.20, 0.35, 0.40]
+C_COLLISION = [0.90, 0.15, 0.05]
 C_FRAME = [0.1, 0.1, 0.1]
 FRAME_SIZE = 0.08
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+
+
+def load_dsf_collision_meshes(model):
+    mesh_cache = {}
+    collision_meshes = {}
+    for geometry_name in model.GetGeometryNames():
+        geometry = model.GetGeometry(geometry_name)
+        if geometry.visual or geometry.type != "dsf_vert":
+            continue
+
+        mesh_path = Path(geometry.mesh_path)
+        if not mesh_path.is_absolute():
+            mesh_path = PROJECT_ROOT / mesh_path
+        mesh_path = mesh_path.resolve()
+
+        if mesh_path not in mesh_cache:
+            importer = WavefrontImporter(str(mesh_path))
+            dsf_mesh = o3d.geometry.TriangleMesh()
+            for dsf_object in importer.get_objects():
+                sharpness = float(np.asarray(dsf_object.sharpness).reshape(-1)[0])
+                dsf = DiffSupportSimple(
+                    vertex_set=dsf_object.vertices.T,
+                    sharpness=sharpness,
+                )
+                vertices, triangles = dsf.get_mesh(resolution=2)
+                part = o3d.geometry.TriangleMesh(
+                    o3d.utility.Vector3dVector(vertices),
+                    o3d.utility.Vector3iVector(triangles),
+                )
+                dsf_mesh += part
+            dsf_mesh.compute_vertex_normals()
+            dsf_mesh.compute_triangle_normals()
+            mesh_cache[mesh_path] = dsf_mesh
+
+        collision_meshes[geometry_name] = mesh_cache[mesh_path]
+
+    return collision_meshes
+
+
+def transform_geometry_meshes(model, geometry_meshes):
+    transformed = []
+    for geometry_name, source_mesh in geometry_meshes.items():
+        geometry = model.GetGeometry(geometry_name)
+        pose = np.eye(4)
+        pose[:3, :3] = geometry.GetRotation()
+        pose[:3, 3] = geometry.GetPosition()
+
+        mesh = copy.deepcopy(source_mesh)
+        mesh.transform(pose)
+        transformed.append(mesh)
+    return transformed
 
 
 class JointControl:
@@ -134,6 +191,7 @@ class UR5eModelWindow(QMainWindow):
 
         self.viewer = Open3DViewer("UR5e Model", initial_zoom=0.55)
         self.ur5e_model, self.ur5e_meshes = get_ur5e_model()
+        self.collision_meshes = load_dsf_collision_meshes(self.ur5e_model)
         self.q = Q_HOME.copy()
 
         self.origin = o3d.geometry.TriangleMesh.create_coordinate_frame(
@@ -157,6 +215,8 @@ class UR5eModelWindow(QMainWindow):
         self.frames_checkbox = QCheckBox("Show joint/link frames")
         self.frames_checkbox.setChecked(True)
         options_row.addWidget(self.frames_checkbox)
+        self.collision_checkbox = QCheckBox("Show collision geometries")
+        options_row.addWidget(self.collision_checkbox)
         options_row.addStretch(1)
         layout.addLayout(options_row)
 
@@ -181,6 +241,7 @@ class UR5eModelWindow(QMainWindow):
         self.zero_btn.clicked.connect(lambda: self._set_q(np.zeros(10)))
         self.home_btn.clicked.connect(lambda: self._set_q(Q_HOME))
         self.frames_checkbox.toggled.connect(lambda *_: self._update_viewer())
+        self.collision_checkbox.toggled.connect(lambda *_: self._update_viewer())
 
         self._set_q(self.q)
 
@@ -207,6 +268,14 @@ class UR5eModelWindow(QMainWindow):
             for name, mesh in meshes.items()
         ]
         geoms.append(self.origin)
+
+        if self.collision_checkbox.isChecked():
+            geoms += [
+                (mesh, C_COLLISION)
+                for mesh in transform_geometry_meshes(
+                    self.ur5e_model, self.collision_meshes
+                )
+            ]
 
         if self.frames_checkbox.isChecked():
             geoms += [(frame, C_FRAME) for frame in self._joint_frames()]

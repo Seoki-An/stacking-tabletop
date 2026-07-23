@@ -33,6 +33,24 @@ from `/home/inrol-manipulator/worksapce/stacking/stacking-tabletop`.
 - `docs/llm/` wiki and this file were reset to remove manipulator/NUC-specific content that no longer applies; hardware-agnostic planning-core vocabulary and config semantics were kept.
 - No manipulator hardware, end-effector, perception approach, or ROS2 control interface has been decided or implemented yet.
 
+## 2026-07-23 UR5e SR-Gripper Model
+
+- Attached the SR gripper to the UR5e `tool0` frame and coupled its four
+  fingers as `[theta, -theta, theta, -theta]`.
+- Corrected joint-2 axes so their negative coupling produces the intended
+  opposite physical rotation.
+- Converted the SR-gripper collision CAD meshes into four fitted convex DSF
+  OBJ assets. The compound base is split into two parts; finger links 1 and 2
+  use one part each.
+- Added the DSF collisions to the standalone and combined URDFs. Terminal pads
+  are contact geometries; structural links are non-contact.
+- Made the standalone gripper diffsim-compatible with a floating base joint.
+- `scripts/test/ur5e_model.py` can optionally overlay all seven smooth DSF
+  collision instances in red.
+- Validation: URDF/XML and visualization parsing, coupled collision FK,
+  diffsim context construction and gripper FK, Python compilation, and
+  `git diff --check` all pass.
+
 ## TODO
 
 - Confirm manipulator (UR5e assumption) and end effector.

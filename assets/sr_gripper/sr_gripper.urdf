@@ -1,14 +1,29 @@
 <?xml version="1.0"?>
 <robot name="sr_gripper_custom">
+  <link name="world"/>
+
+  <joint name="base_joint" type="floating">
+    <parent link="world"/>
+    <child link="base_link"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
+
   <link name="base_link">
     <visual>
       <geometry>
         <mesh filename="meshes/visual/link0.obj"/>
       </geometry>
     </visual>
-    <collision>
+    <collision name="base_mount">
       <geometry>
-        <mesh filename="meshes/collision/link0.obj"/>
+        <dsf_vert filename="assets/sr_gripper/meshes/collision/link0_dsf1.obj"
+                  contact="false"/>
+      </geometry>
+    </collision>
+    <collision name="base_body">
+      <geometry>
+        <dsf_vert filename="assets/sr_gripper/meshes/collision/link0_dsf2.obj"
+                  contact="false"/>
       </geometry>
     </collision>
   </link>
@@ -21,7 +36,8 @@
     </visual>
     <collision>
       <geometry>
-        <mesh filename="meshes/collision/link1.obj"/>
+        <dsf_vert filename="assets/sr_gripper/meshes/collision/link1_dsf1.obj"
+                  contact="false"/>
       </geometry>
     </collision>
   </link>
@@ -34,7 +50,8 @@
     </visual>
     <collision>
       <geometry>
-        <mesh filename="meshes/collision/link2.obj"/>
+        <dsf_vert filename="assets/sr_gripper/meshes/collision/link2_dsf1.obj"
+                  contact="true"/>
       </geometry>
     </collision>
   </link>
@@ -47,7 +64,8 @@
     </visual>
     <collision>
       <geometry>
-        <mesh filename="meshes/collision/link1.obj"/>
+        <dsf_vert filename="assets/sr_gripper/meshes/collision/link1_dsf1.obj"
+                  contact="false"/>
       </geometry>
     </collision>
   </link>
@@ -68,13 +86,15 @@
     <collision>
       <origin xyz="0 0.015 0" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="meshes/collision/link2.obj"/>
+        <dsf_vert filename="assets/sr_gripper/meshes/collision/link2_dsf1.obj"
+                  contact="true"/>
       </geometry>
     </collision>
     <collision>
       <origin xyz="0 -0.015 0" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="meshes/collision/link2.obj"/>
+        <dsf_vert filename="assets/sr_gripper/meshes/collision/link2_dsf1.obj"
+                  contact="true"/>
       </geometry>
     </collision>
   </link>
@@ -91,7 +111,7 @@
     <parent link="left_finger_link_1"/>
     <child link="left_finger_link_2"/>
     <origin xyz="0 0 0.07" rpy="0 0 0"/>
-    <axis xyz="0 1 0"/>
+    <axis xyz="0 -1 0"/>
     <limit lower="-0.9" upper="0.0"/>
     <mimic joint="left_finger_joint_1" multiplier="-1" offset="0"/>
   </joint>
@@ -109,7 +129,7 @@
     <parent link="right_finger_link_1"/>
     <child link="right_finger_link_2"/>
     <origin xyz="0 0 0.07" rpy="0 0 0"/>
-    <axis xyz="0 1 0"/>
+    <axis xyz="0 -1 0"/>
     <limit lower="-0.9" upper="0.0"/>
     <mimic joint="left_finger_joint_1" multiplier="-1" offset="0"/>
   </joint>

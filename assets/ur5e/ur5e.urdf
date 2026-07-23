@@ -279,6 +279,18 @@
       </geometry>
       <material name="sr_dark_grey"/>
     </visual>
+    <collision name="base_mount">
+      <geometry>
+        <dsf_vert filename="assets/sr_gripper/meshes/collision/link0_dsf1.obj"
+                  contact="false"/>
+      </geometry>
+    </collision>
+    <collision name="base_body">
+      <geometry>
+        <dsf_vert filename="assets/sr_gripper/meshes/collision/link0_dsf2.obj"
+                  contact="false"/>
+      </geometry>
+    </collision>
   </link>
   <joint name="sr_gripper_mount_joint" type="fixed">
     <parent link="tool0"/>
@@ -294,6 +306,12 @@
       </geometry>
       <material name="sr_dark_grey"/>
     </visual>
+    <collision>
+      <geometry>
+        <dsf_vert filename="assets/sr_gripper/meshes/collision/link1_dsf1.obj"
+                  contact="false"/>
+      </geometry>
+    </collision>
   </link>
   <joint name="sr_gripper_left_finger_joint_1" type="revolute">
     <parent link="sr_gripper_base_link"/>
@@ -311,12 +329,18 @@
       </geometry>
       <material name="sr_dark_grey"/>
     </visual>
+    <collision>
+      <geometry>
+        <dsf_vert filename="assets/sr_gripper/meshes/collision/link2_dsf1.obj"
+                  contact="true"/>
+      </geometry>
+    </collision>
   </link>
   <joint name="sr_gripper_left_finger_joint_2" type="revolute">
     <parent link="sr_gripper_left_finger_link_1"/>
     <child link="sr_gripper_left_finger_link_2"/>
     <origin xyz="0 0 0.07" rpy="0 0 0"/>
-    <axis xyz="0 1 0"/>
+    <axis xyz="0 -1 0"/>
     <limit lower="-0.9" upper="0.0" effort="100.0" velocity="1.0"/>
     <mimic joint="sr_gripper_left_finger_joint_1"
            multiplier="-1.0" offset="0.0"/>
@@ -330,6 +354,12 @@
       </geometry>
       <material name="sr_dark_grey"/>
     </visual>
+    <collision>
+      <geometry>
+        <dsf_vert filename="assets/sr_gripper/meshes/collision/link1_dsf1.obj"
+                  contact="false"/>
+      </geometry>
+    </collision>
   </link>
   <joint name="sr_gripper_right_finger_joint_1" type="revolute">
     <parent link="sr_gripper_base_link"/>
@@ -349,12 +379,19 @@
       </geometry>
       <material name="sr_dark_grey"/>
     </visual>
+    <collision>
+      <origin xyz="0 0.015 0" rpy="0 0 0"/>
+      <geometry>
+        <dsf_vert filename="assets/sr_gripper/meshes/collision/link2_dsf1.obj"
+                  contact="true"/>
+      </geometry>
+    </collision>
   </link>
   <joint name="sr_gripper_right_finger_joint_2" type="revolute">
     <parent link="sr_gripper_right_finger_link_1"/>
     <child link="sr_gripper_right_finger_link_2"/>
     <origin xyz="0 0 0.07" rpy="0 0 0"/>
-    <axis xyz="0 1 0"/>
+    <axis xyz="0 -1 0"/>
     <limit lower="-0.9" upper="0.0" effort="100.0" velocity="1.0"/>
     <mimic joint="sr_gripper_left_finger_joint_1"
            multiplier="-1.0" offset="0.0"/>
@@ -369,6 +406,13 @@
       </geometry>
       <material name="sr_dark_grey"/>
     </visual>
+    <collision>
+      <origin xyz="0 0.015 0" rpy="0 0 0"/>
+      <geometry>
+        <dsf_vert filename="assets/sr_gripper/meshes/collision/link2_dsf1.obj"
+                  contact="true"/>
+      </geometry>
+    </collision>
   </link>
   <joint name="sr_gripper_right_finger_lower_pad_joint" type="fixed">
     <parent link="sr_gripper_right_finger_link_2"/>
