@@ -43,8 +43,37 @@ correct for this project.
 
 ## Commands
 
-No commands are confirmed working/validated for this project yet post-reset.
-`../stacking-planner/docs/llm/build_and_run.md` documents the full set of
+The SR-gripper grasp simulation is validated:
+
+```bash
+# Optimize an SR-gripper grasp, simulate closing, then open the Open3D result.
+direnv exec . python scripts/test/simulate_grasp.py
+
+# Headless raw-seed simulation, useful as a quick smoke test.
+direnv exec . python scripts/test/simulate_grasp.py \
+  --skip-solve --no-visualize
+
+# Render the simulated trajectory without opening the interactive viewer.
+direnv exec . python scripts/test/simulate_grasp.py \
+  --video .videos/sr_grasp.mp4 --no-visualize
+
+# Render the sampled smooth DSF surfaces instead of the visual meshes.
+direnv exec . python scripts/test/simulate_grasp.py \
+  --show-collision --video .videos/sr_grasp_dsf.mp4 --no-visualize
+```
+
+The default stone-1 scenario completes 500 simulation steps with a feasible
+bilateral grasp and two terminal-pad contacts in both modes. The test requires
+the current `../diffsim` Python binding with mimic-joint and generic left/right
+contact-pad support. Video rendering restarts the script once with Open3D's EGL
+surfaceless backend; `--fps` and `--frame-stride` control the output rate and
+simulation-frame sampling. `--show-collision` keeps visual meshes and smooth
+DSF meshes separate, then applies the same coupled joint state and grasp pose
+to the selected set. Collision mode renders only the current/final DSFs so
+near-identical trajectory surfaces do not cause z-fighting; sampled DSF hulls
+are merged, cleaned, and consistently oriented before rendering.
+
+`../stacking-planner/docs/llm/build_and_run.md` documents the remaining full set of
 manipulator-era commands (`generate_sequence`, `execute_offline`/`execute_online`,
 `sceneid_from_logs`, ablation/training commands, etc.) — several of the
 hardware-agnostic ones (training, sampling, ablation) are plausible starting

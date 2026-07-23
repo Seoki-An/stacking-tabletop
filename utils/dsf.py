@@ -1,6 +1,6 @@
 import numpy as np
 import pyvista as pv
-from scipy.spatial import ConvexHull
+from scipy.spatial import ConvexHull, cKDTree
 from scipy.spatial.transform import Rotation
 
 
@@ -62,9 +62,39 @@ class DiffSupportSimple:
     def get_mesh(self, resolution=4):
         support_points, _ = self.sample_surface(resolution)
 
+        # Flat DSF regions map many directions to the same support point.
+        # Merge those samples before constructing the convex hull so the
+        # visualization mesh remains closed and free of zero-area facets.
+        tree = cKDTree(support_points)
+        keep = np.ones(len(support_points), dtype=bool)
+        for index, point in enumerate(support_points):
+            if not keep[index]:
+                continue
+            neighbors = tree.query_ball_point(point, r=1e-6)
+            keep[neighbors] = False
+            keep[index] = True
+        support_points = support_points[keep]
+
         hull = ConvexHull(support_points)
-        vertices = support_points.astype(np.float64)  # (N, 3)
-        triangles = hull.simplices.astype(np.int32)  # (M, 3)
+        triangles = hull.simplices.copy()
+
+        # scipy reports an outward normal for each facet in hull.equations,
+        # but does not guarantee matching vertex winding in hull.simplices.
+        triangle_vertices = support_points[triangles]
+        triangle_normals = np.cross(
+            triangle_vertices[:, 1] - triangle_vertices[:, 0],
+            triangle_vertices[:, 2] - triangle_vertices[:, 0],
+        )
+        inward = np.einsum(
+            "ij,ij->i", triangle_normals, hull.equations[:, :3]
+        ) < 0
+        triangles[inward] = triangles[inward][:, [0, 2, 1]]
+
+        used_vertices = np.unique(triangles)
+        remap = np.full(len(support_points), -1, dtype=np.int32)
+        remap[used_vertices] = np.arange(len(used_vertices), dtype=np.int32)
+        vertices = support_points[used_vertices].astype(np.float64)
+        triangles = remap[triangles]
 
         return vertices, triangles
 

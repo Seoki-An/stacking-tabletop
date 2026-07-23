@@ -51,11 +51,21 @@ they carry over silently.
   fitted with the existing support-function optimizer at 12 nodes per convex
   part. `link0` is split into two DSF OBJ files; `link1` and `link2` each use
   one. Only the terminal `link2` pad geometries are marked as grasp contacts.
+  Smooth DSF visualization meshes are convex hulls with explicitly outward
+  face winding. Near-identical support samples on flat regions are merged
+  before hulling and unused samples are removed, so every generated part is
+  closed, manifold, watertight, and consistently outside-facing.
   `scripts/test/ur5e_model.py` can overlay the actual smooth DSF surfaces from
   every URDF collision entry for visual inspection.
   The standalone `assets/sr_gripper/sr_gripper.urdf` has a floating
   world-to-base joint, as required by diffsim's `Gripper`; the combined UR5e
   model instead keeps the gripper rigidly mounted to `tool0`.
+  The SR-gripper simulation smoke test uses tabletop-scale defaults: opening
+  range `[0, 0.9]`, a `0.20 m` downward-facing initial base offset, and a
+  `500 × 0.01 s` closing simulation. GraspGen uses 3 mm general separation,
+  1 mm plane clearance, and a 6 mm terminal-pad contact band. The contact band
+  accommodates the fitted SR pad/stone DSFs; reducing it to 1--3 mm rejects
+  otherwise collision-free seeds at the left/right contact constraints.
   This makes the full model 10-DOF, so it is not the six-axis diffsim planning model.
   Preparing the end-effector-only `ur5e_ik.urdf` and wiring it into the
   tabletop planner remain separate work.

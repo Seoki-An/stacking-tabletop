@@ -75,6 +75,11 @@ fresh design decision rather than assuming a default:
 - `agent/integrated_planner.py`
 - `agent/mcts/mcts.py`, `agent/mcts/cem.py`
 - `planning/planning.py`
+- `scripts/test/simulate_grasp.py` — tabletop SR-gripper grasp optimization,
+  closing simulation, and Open3D trajectory visualization. Its GraspGen
+  margins are tabletop-scale: 3 mm separation, 1 mm plane clearance, and a
+  6 mm terminal-pad contact band. The wider contact band is required by the
+  fitted SR pad/stone DSFs and is independent of plane-penetration clearance.
 - `docs/config_manual_mcts_action.md`
 - `docs/llm/execution.md`
 - `docs/llm/perception.md`

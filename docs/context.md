@@ -47,8 +47,21 @@ from `/home/inrol-manipulator/worksapce/stacking/stacking-tabletop`.
 - Made the standalone gripper diffsim-compatible with a floating base joint.
 - `scripts/test/ur5e_model.py` can optionally overlay all seven smooth DSF
   collision instances in red.
+- Added `scripts/test/simulate_grasp.py` for SR-gripper grasp optimization,
+  closing simulation, visual/DSF rendering, and optional video output.
+- Updated diffsim GraspGen to recognize generic left/right terminal pads and
+  preserve fitted DSF metadata and all declared support nodes. A penetrating
+  test seed now resolves to about 0.95 mm above the plane for the configured
+  1 mm clearance.
+- Smooth DSF visualization hulls now merge coincident flat-region samples,
+  remove unused vertices, and explicitly wind every convex face outward.
+  All SR-gripper and legacy StoneGrab generated DSF meshes validate as closed,
+  manifold, watertight, orientable, and non-self-intersecting.
+- The tabletop SR test uses 3 mm general separation, 1 mm plane clearance, and
+  a 6 mm terminal-pad contact band.
 - Validation: URDF/XML and visualization parsing, coupled collision FK,
-  diffsim context construction and gripper FK, Python compilation, and
+  diffsim context construction and gripper FK, GraspGen and legacy StoneGrab
+  regressions, Python compilation, DSF winding/topology checks, and
   `git diff --check` all pass.
 
 ## TODO
