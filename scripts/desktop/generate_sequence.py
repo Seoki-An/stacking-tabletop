@@ -1464,7 +1464,7 @@ def _set_action_score_excavator_xy(cfg, target_structure_offset: np.ndarray) -> 
     excavator_xy = -np.asarray(target_structure_offset, dtype=float).reshape(2)
     score_cfg.excavator_xy = [float(excavator_xy[0]), float(excavator_xy[1])]
     print(
-        "[INFO] Using local excavator xy for action scoring: "
+        "[INFO] Using local manipulator xy for action scoring: "
         f"{score_cfg.excavator_xy}"
     )
 

@@ -8,14 +8,14 @@ planning core documented here is expected to be largely hardware-agnostic
 and reusable for the manipulator-based system, so this page keeps the
 algorithm-level content from `stacking-planner` rather than starting empty.
 Excavator-specific operational detail (script CLI flags tied to the current
-`scripts/desktop/generate_sequence.py` entrypoint, excavator-distance scoring,
+`scripts/desktop/generate_sequence.py` entrypoint, manipulator-distance scoring,
 session resume/branch mechanics) has been trimmed; see
 `../stacking-planner/docs/llm/planning.md` for that full detail if useful
 while re-deriving equivalents for this project.
 
 ## Status
 
-`scripts/desktop/generate_sequence.py` is the excavator-era entrypoint name;
+`scripts/desktop/generate_sequence.py` is the manipulator-era entrypoint name;
 it and its CLI surface will likely be renamed/rewritten as part of the
 manipulator re-implementation. The algorithm described below (MCTS search
 loop, simulation terminology, candidate validation) is the part expected to
@@ -51,7 +51,7 @@ that as `settled_pose`.
 - CEM only samples, mutates, scores, and deduplicates root proposals; it runs no physics itself. A root proposal becomes a depth-1 child and is long-simulated (as a feasibility gate) before it can be expanded further.
 - `algorithm.mcts.max_depth` counts node depth with the root at 0 (`max_depth: 1` means root children only).
 - Tree preservation (`search(..., preserve_tree=True)`, the default) reuses validated states/subtree structure across steps; promoted children are revalidated via `revalidate_preserved_root(...)` before continuing search.
-- See `docs/config_manual_mcts_action.md` for the full MCTS/environment-action config key reference — that file is not excavator-specific and was left as-is in this reset.
+- See `docs/config_manual_mcts_action.md` for the full MCTS/environment-action config key reference — that file is not manipulator-specific and was left as-is in this reset.
 
 ## Candidate Filtering Before Motion
 
@@ -62,11 +62,11 @@ that as `settled_pose`.
 ## What Is Excavator-Specific (removed from this page)
 
 The following pieces of the inherited planning code are tied to the
-excavator project and are **not** described here; treat them as needing a
+manipulator project and are **not** described here; treat them as needing a
 fresh design decision rather than assuming a default:
 
-- `regrasp_xy_pos`/regrasp candidate motion generation tied to the excavator's reach/regrasp geometry.
-- The `excavator_distance` planar scoring term (`planar.score.excavator_distance_axis`, `excavator_xy`) — biases candidate scoring by distance from the excavator base; not meaningful for a manipulator workspace without redefinition.
+- `regrasp_xy_pos`/regrasp candidate motion generation tied to the manipulator's reach/regrasp geometry.
+- The `excavator_distance` planar scoring term (`planar.score.excavator_distance_axis`, `excavator_xy`) — biases candidate scoring by distance from the manipulator base; not meaningful for a manipulator workspace without redefinition.
 - Session resume/branch CLI mechanics (`--resume`, `--resume-state-pkl`, `--branch-start-step`) tied to the current script's file layout; likely to carry over conceptually but the entrypoint itself will change.
 - SceneID-driven resume (`--simulate-sceneid-stones`, ground-height-from-SceneID plumbing) — depends on the perception redesign in [Perception](perception.md).
 
@@ -82,5 +82,5 @@ fresh design decision rather than assuming a default:
 ## TODO
 
 - Confirm which config keys need retuning for tabletop scale once stone assets and target geometry exist.
-- Design the manipulator-appropriate replacement for regrasp/excavator-distance scoring.
+- Design the manipulator-appropriate replacement for regrasp/manipulator-distance scoring.
 - Decide the new entrypoint name/CLI surface (replacing `scripts/desktop/generate_sequence.py`).

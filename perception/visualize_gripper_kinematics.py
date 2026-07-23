@@ -15,7 +15,7 @@ import inrol_urdf_parser as urdf
 import numpy as np
 import open3d as o3d
 
-from model import EXCAVATOR_PATH, get_excavator_model, update_urdf_mesh
+from model import MANIPULATOR_PATH, get_excavator_model, update_urdf_mesh
 
 GRIPPER_LINKS = ("cs_tilt", "cs_rotate", "grip_body", "grip_left", "grip_right")
 DEFAULT_LIDAR_LINK = "lidar2_link"
@@ -33,11 +33,11 @@ CSV_POSE_GROUP_COLUMNS = (
 JOINT_OFFSET_NAMES = ("swing", "boom", "arm", "bucket", "tilt", "rotate")
 C_LIDAR = [0.15, 0.42, 1.0]
 C_GRIPPER = [0.95, 0.58, 0.16]
-C_EXCAVATOR = [0.55, 0.55, 0.55]
+C_MANIPULATOR = [0.55, 0.55, 0.55]
 C_MODEL_PCD = [1.0, 0.16, 0.08]
 C_ORIGINAL = [0.1, 0.1, 0.1]
 FRAME_SIZE = 0.7
-DEFAULT_EXCAVATOR_URDF = Path(EXCAVATOR_PATH) / "vdk23_cx.urdf"
+DEFAULT_MANIPULATOR_URDF = Path(MANIPULATOR_PATH) / "vdk23_cx.urdf"
 DEFAULT_CALIBRATION_JOINT = "lidar2_joint"
 
 
@@ -486,7 +486,7 @@ def build_sample_geometries(
     geometries.append(_paint_copy(lidar_cropped, C_LIDAR))
     geometries.extend(_paint_copy(mesh, C_GRIPPER) for mesh in gripper_meshes)
     if show_excavator:
-        geometries.extend(_paint_copy(mesh, C_EXCAVATOR) for mesh in excavator_meshes)
+        geometries.extend(_paint_copy(mesh, C_MANIPULATOR) for mesh in excavator_meshes)
 
     model_pcd = None
     lidar_to_model = None
@@ -1071,9 +1071,9 @@ def build_arg_parser() -> argparse.ArgumentParser:
         help="Optional voxel size for downsampling the LiDAR cloud.",
     )
     parser.add_argument(
-        "--show-excavator",
+        "--show-manipulator",
         action="store_true",
-        help="Show non-gripper excavator meshes as context.",
+        help="Show non-gripper manipulator meshes as context.",
     )
     parser.add_argument(
         "--no-frames",
@@ -1104,7 +1104,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--calibration-urdf",
-        default=str(DEFAULT_EXCAVATOR_URDF),
+        default=str(DEFAULT_MANIPULATOR_URDF),
         help="Excavator URDF to edit in calibration mode.",
     )
     parser.add_argument(

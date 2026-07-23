@@ -135,7 +135,7 @@ def get_posegen(cfg=None, ground_height: float | None = None) -> posegen.Context
     config = posegen.Config()
     _set_posegen_ground_height_if_supported(config, ground_height)
 
-    # Defaults below match the original hardcoded excavator-scale values;
+    # Defaults below match the original hardcoded manipulator-scale values;
     # environment.action.posegen_tolerances lets a project (e.g. a smaller
     # tabletop target) override them without touching this shared code.
     tolerances = cfg.action.get("posegen_tolerances", {}) if cfg is not None else {}

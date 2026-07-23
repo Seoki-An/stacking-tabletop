@@ -29,7 +29,7 @@ desktop-only topology. It is documented in
 
 - `perception/get_stone_pcd.py`, `perception/merge_stone_pcd_groups.py`, `perception/merge_filtered_groups.py`: in-hand PCD merging utilities tied to the old NUC scan format.
 - `perception/reconstruction_mesh.py`, `perception/reconstruction_dsf_multiple.py`, `perception/dsf_fit/`: stone model reconstruction; candidate for reuse.
-- `perception/sceneid_runtime.py`: SceneID runtime entrypoint used by the old excavator execution flow; not applicable as-is.
+- `perception/sceneid_runtime.py`: SceneID runtime entrypoint used by the old manipulator execution flow; not applicable as-is.
 - `scripts/nuc/*`: NUC-side scanning/pose-identification scripts; **not applicable** to a desktop-only topology. Any needed logic will be ported into a desktop-side perception module rather than kept as `scripts/nuc/`.
 
 ## TODO

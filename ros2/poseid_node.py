@@ -246,7 +246,7 @@ class PoseIdentifier(Node):
     ) -> Union[None, np.ndarray]:
         """
         Arguments:
-            pcd: np.ndarray of shape (N, 3), point cloud in the excavator base frame
+            pcd: np.ndarray of shape (N, 3), point cloud in the manipulator base frame
             pose_init: Tuple of (pos, quat), where pos is np.ndarray of shape (3,) and quat is np.ndarray of shape (4,) in the same frame as pcd
             id: int, index of the stone type
         """
@@ -343,7 +343,7 @@ class PoseIdentifier(Node):
     ) -> Union[None, np.ndarray]:
         """
         Arguments:
-            pcds: list of np.ndarray of shape (N, 3), point clouds in the excavator base frame
+            pcds: list of np.ndarray of shape (N, 3), point clouds in the manipulator base frame
             pose_init: Tuple of (pos, quat), where pos is np.ndarray of shape (3,) and quat is np.ndarray of shape (4,) in the same frame as pcd
             id: int, index of the stone type
         """

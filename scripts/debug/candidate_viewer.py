@@ -62,7 +62,7 @@ _COLOR_POSE_SOLVE_CONTACT = [0.95, 0.20, 0.95, 1.00]
 _COLOR_POSE_SOLVE_FORCE = [1.00, 0.08, 0.80, 1.00]
 _COLOR_FAILED_GRASP  = [0.90, 0.15, 0.15, 0.30]  # transparent red — failed grasps
 _COLOR_SEQUENCE_FUTURE = [0.65, 0.30, 1.00, 0.42]
-_COLOR_EXCAVATOR     = [0.95, 0.82, 0.28, 1.00]
+_COLOR_MANIPULATOR     = [0.95, 0.82, 0.28, 1.00]
 _GROUND_MARGIN = 4.0
 _GROUND_DEPTH = 0.001
 _PLACE_HEIGHT_BOX_MARGIN = 0.25
@@ -73,7 +73,7 @@ _TRAJECTORY_VIDEO_SUBDIR = Path("videos") / "candidate_trajectories"
 _LIDAR_FRAME_LINKS = ("lidar1_link", "lidar2_link", "lidar3_link")
 _END_EFFECTOR_LINK = "grip_body"
 
-_EXCAVATOR_JOINTS = [
+_MANIPULATOR_JOINTS = [
     ("Swing", 0, -180.0, 180.0),
     ("Boom", 1, -30.0, 120.0),
     ("Arm", 2, -180.0, 60.0),
@@ -394,7 +394,7 @@ class CandidateViewer:
         self,
         data_path: str,
         mesh_source: str = "auto",
-        excavator: str = "auto",
+        manipulator: str = "auto",
     ):
         self._data_path = Path(data_path)
         self._data = _load_viewer_data(self._data_path)
@@ -409,7 +409,7 @@ class CandidateViewer:
         )
         self._score_map_env = None
         self._score_map_cache = {}
-        self._show_excavator = self._resolve_show_excavator(excavator)
+        self._show_excavator = self._resolve_show_excavator(manipulator)
         self._excavator_model = None
         self._excavator_meshes = {}
         self._excavator_q = self._initial_excavator_q()
@@ -569,7 +569,7 @@ class CandidateViewer:
 
     def _origin_frame_size(self, wall_cfg: dict) -> float:
         """Axis-gizmo size at the world origin, proportional to target wall
-        height (matches the original fixed size=0.4 at excavator-scale
+        height (matches the original fixed size=0.4 at manipulator-scale
         height=2.0, so it scales down with a smaller tabletop target)."""
         try:
             wall_height = float(wall_cfg.get("height", 2.0))
@@ -681,7 +681,7 @@ class CandidateViewer:
 
             self._excavator_model, self._excavator_meshes = get_excavator_model()
         except Exception as exc:
-            print(f"[WARN] Could not load excavator model: {exc}")
+            print(f"[WARN] Could not load manipulator model: {exc}")
             self._show_excavator = False
             self._excavator_model = None
             self._excavator_meshes = {}
@@ -712,7 +712,7 @@ class CandidateViewer:
         except Exception:
             return []
         return [
-            (f"excavator_{name}", mesh, _mat(_COLOR_EXCAVATOR))
+            (f"excavator_{name}", mesh, _mat(_COLOR_MANIPULATOR))
             for name, mesh in meshes.items()
         ]
 
@@ -1069,7 +1069,7 @@ class CandidateViewer:
         self._panel.add_child(frame_row)
 
         self._excavator_joint_edits = []
-        for name, idx, min_deg, max_deg in _EXCAVATOR_JOINTS:
+        for name, idx, min_deg, max_deg in _MANIPULATOR_JOINTS:
             row = gui.Horiz(spacing)
             row.add_child(gui.Label(name))
             edit = gui.NumberEdit(gui.NumberEdit.DOUBLE)
@@ -2742,11 +2742,11 @@ def main():
         help="mesh source to display; requires debug pkl saved with PLY meshes for ply",
     )
     parser.add_argument(
-        "--excavator",
+        "--manipulator",
         choices=("auto", "on", "off"),
         default="auto",
         help=(
-            "Show excavator joint controls. auto enables them for generated "
+            "Show manipulator joint controls. auto enables them for generated "
             "sequence session pickles with planning_params.pkl."
         ),
     )
@@ -2755,7 +2755,7 @@ def main():
         CandidateViewer(
             args.data,
             mesh_source=args.mesh_source,
-            excavator=args.excavator,
+            manipulator=args.manipulator,
         )
     except (EOFError, pickle.UnpicklingError, TypeError, ValueError) as exc:
         path = Path(args.data)

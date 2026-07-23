@@ -31,15 +31,15 @@ at the API level.
 - `agent/env/env.py`, `agent/env/simulator.py`: environment/physics wrapper. Expected to stay, subject to scale/tuning changes for tabletop stones.
 - `agent/env/components/`: candidate action generation, pose solving, support reasoning, inventory, state. Expected to stay.
 - `agent/mcts/`: tree search, nodes, CEM proposal logic. Expected to stay.
-- `planning/planning.py`: `diffsimpy.planner.Context` setup and motion-planning helpers. Expected to stay in shape, but grasp/IK bindings assume the excavator gripper model (`SURFACE_GRASP_*` constants, gripper URDF) and will need a manipulator end-effector equivalent.
-- `planning/execution*.py`, `gui/execution_window.py`, `scripts/desktop/execute_*.py`: excavator-specific execution workflow (ROS2 phase choreography, NUC-mediated scan handoff, multi-process GUI/worker split). **To be redesigned** for a single-desktop, manipulator-driven control loop.
-- `perception/`: point-cloud/mesh/DSF reconstruction utilities are plausibly reusable if the new perception stack still produces per-stone point clouds; `perception/sceneid_runtime.py` and the LiDAR/ICP-based scene identification flow are excavator-specific and **to be redesigned**, likely replaced or supplemented by AprilTag-based pose identification (undecided).
-- `ros2/`: node wrappers modeled around excavator joints/phases and NUC-relayed topics. **To be redesigned** for the manipulator's control interface.
+- `planning/planning.py`: `diffsimpy.planner.Context` setup and motion-planning helpers. Expected to stay in shape, but grasp/IK bindings assume the manipulator gripper model (`SURFACE_GRASP_*` constants, gripper URDF) and will need a manipulator end-effector equivalent.
+- `planning/execution*.py`, `gui/execution_window.py`, `scripts/desktop/execute_*.py`: manipulator-specific execution workflow (ROS2 phase choreography, NUC-mediated scan handoff, multi-process GUI/worker split). **To be redesigned** for a single-desktop, manipulator-driven control loop.
+- `perception/`: point-cloud/mesh/DSF reconstruction utilities are plausibly reusable if the new perception stack still produces per-stone point clouds; `perception/sceneid_runtime.py` and the LiDAR/ICP-based scene identification flow are manipulator-specific and **to be redesigned**, likely replaced or supplemented by AprilTag-based pose identification (undecided).
+- `ros2/`: node wrappers modeled around manipulator joints/phases and NUC-relayed topics. **To be redesigned** for the manipulator's control interface.
 
 ## Data Contracts (inherited, likely still valid)
 
 These are conventions used throughout the planning/observation code and are
-not obviously excavator-specific; they should carry over unless the
+not obviously manipulator-specific; they should carry over unless the
 manipulator/perception redesign has a reason to change them:
 
 - Stone poses are usually 7-vectors: `[x, y, z, qx, qy, qz, qw]`.
@@ -55,7 +55,7 @@ manipulator/perception redesign has a reason to change them:
 
 ## Removed From This Page (2026-07-22 reset)
 
-The excavator-specific perception/resume flow (NUC-mediated scene scans over
+The manipulator-specific perception/resume flow (NUC-mediated scene scans over
 Wi-Fi, SceneID reconstruction from logs) previously documented here has been
 removed as not applicable to a desktop-only, likely-AprilTag-based system.
 See `../stacking-planner/docs/llm/architecture.md` for that historical
@@ -64,5 +64,5 @@ content if it is useful reference while designing the new perception flow.
 ## TODO
 
 - Draw the runtime process topology once the manipulator control interface (ROS2 driver or otherwise) is decided.
-- Decide whether the GUI/worker multi-process split (used to keep excavator ROS2/Ray/diffsim calls off the GUI thread) is still needed for a manipulator control loop, or can be simplified.
+- Decide whether the GUI/worker multi-process split (used to keep manipulator ROS2/Ray/diffsim calls off the GUI thread) is still needed for a manipulator control loop, or can be simplified.
 - Document the manipulator/end-effector kinematic model once assets exist under `model/`/`assets/`.

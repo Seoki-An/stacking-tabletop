@@ -37,7 +37,7 @@ class Simulator:
         self._n_stone        = int(cfg.n_stone)
         self._settle_n_step  = int(cfg.sim.get("settle_n_step", 0))
         self._ground_height  = environment_ground_height(cfg)
-        # Both default to the original hardcoded excavator-scale values; a
+        # Both default to the original hardcoded manipulator-scale values; a
         # project with a different physical scale (e.g. a smaller tabletop
         # target) can override them without touching this shared code.
         self._diffsim_narrow_phase_tol = cfg.sim.get("narrow_phase_tol", None)

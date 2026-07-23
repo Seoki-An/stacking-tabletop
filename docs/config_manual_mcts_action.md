@@ -184,9 +184,9 @@ planar score modes. Active-floor connectedness is a score term unless
 | `fill_area` | float | Weight for absolute active-floor empty-cell coverage, normalized within the candidate pool. |
 | `frontier` | float | Weight for frontier-contact density around the candidate footprint. |
 | `target_boundary` | float | Weight for target-boundary proximity of the stone-specific valid anchor at its support height. The term is `0` at the target center and `1` at a valid side or corner after taper and stone inset are applied. Anchors outside that local tapered boundary receive no bonus. |
-| `excavator_distance` | float | Tie-break weight that prefers XY anchors farther from the excavator-base planner origin when floor level is otherwise comparable. |
-| `excavator_distance_axis` | str | Axis used by the excavator-distance term: `"xy"` uses Euclidean XY distance, `"x"` uses only `excavator_xy[0]`, and `"y"` uses only `excavator_xy[1]`. |
-| `excavator_xy` | list[float] / null | Excavator-base XY in planner-local target coordinates. `generate_sequence.py` sets this to `-target_structure_offset` so global excavator origin and local sampled XY are compared in the same frame. |
+| `excavator_distance` | float | Tie-break weight that prefers XY anchors farther from the manipulator-base planner origin when floor level is otherwise comparable. |
+| `excavator_distance_axis` | str | Axis used by the manipulator-distance term: `"xy"` uses Euclidean XY distance, `"x"` uses only `excavator_xy[0]`, and `"y"` uses only `excavator_xy[1]`. |
+| `excavator_xy` | list[float] / null | Excavator-base XY in planner-local target coordinates. `generate_sequence.py` sets this to `-target_structure_offset` so global manipulator origin and local sampled XY are compared in the same frame. |
 | `elite_fraction` | float | Fraction of each per-stone XY sample budget filled deterministically from highest-score cells before Boltzmann sampling fills the remainder. |
 
 #### Floor-Fill Layer Constraints (`planar.floor_fill`)

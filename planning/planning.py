@@ -5,7 +5,7 @@ from types import SimpleNamespace
 from scipy.spatial.transform import Rotation
 
 from diffsimpy import diffsim, planner
-from model import EXCAVATOR_PATH, GRIPPER_PATH
+from model import MANIPULATOR_PATH, GRIPPER_PATH
 
 Q_HOME = np.array([-np.pi / 3, np.pi / 4, -np.pi / 3, -np.pi / 2 + 0.2, 0.0, 0.0])
 Q_SCAN = np.array([0.0, np.pi / 4, -np.pi / 3, -np.pi / 2 + 0.2, 0.0, 0.0])
@@ -439,7 +439,7 @@ def get_planner(
     cur_dir = os.path.dirname(os.path.abspath(__file__))
     config.gripper.file_name = os.path.join(cur_dir, GRIPPER_PATH, "stone_grab.urdf")
     config.manipulator.file_name = os.path.join(
-        cur_dir, EXCAVATOR_PATH, "vdk23_cx_ik.urdf"
+        cur_dir, MANIPULATOR_PATH, "vdk23_cx_ik.urdf"
     )
     config.manipulator.end_effector_name = "grip_body"
 

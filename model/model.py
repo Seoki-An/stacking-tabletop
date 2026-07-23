@@ -12,8 +12,8 @@ from utils.wavefront import WavefrontImporter
 from utils.dsf import DiffSupportSimple
 from utils.geometry import fix_normals_outward
 
-EXCAVATOR_PATH = os.path.join(os.getcwd(), "assets/excavator_3")
-GRIPPER_PATH = os.path.join(os.getcwd(), "assets/stone_grab_3")
+MANIPULATOR_PATH = os.path.join(os.getcwd(), "assets/excavator")
+GRIPPER_PATH = os.path.join(os.getcwd(), "assets/stone_grab")
 
 
 def _model_id_from_asset_path(path: pathlib.Path) -> int:
@@ -92,7 +92,7 @@ def get_stone_model(
 
 def get_excavator_model() -> Tuple[urdf.URDF, Dict[str, o3d.geometry.TriangleMesh]]:
 
-    urdf_path = os.path.join(EXCAVATOR_PATH, "vdk23_cx.urdf")
+    urdf_path = os.path.join(MANIPULATOR_PATH, "vdk23_cx.urdf")
     if not os.path.exists(urdf_path):
         raise FileNotFoundError(f"URDF file not found: {urdf_path}")
 

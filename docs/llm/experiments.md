@@ -10,10 +10,10 @@ Keep detailed logs in session directories or `docs/context.md`.
 This page was reset to empty alongside the rest of `docs/llm/` when
 `stacking-tabletop` began its re-implementation as a manipulator-based
 tabletop system. Historical MCTS ablation/training experiment results from
-the excavator project are in `../stacking-planner/docs/llm/experiments.md`
+the manipulator project are in `../stacking-planner/docs/llm/experiments.md`
 and `../stacking-planner/docs/context.md`; they concern the shared planning
 core and may still be a useful reference for tuning direction, but were run
-at excavator/field scale and should not be assumed to transfer directly.
+at manipulator/field scale and should not be assumed to transfer directly.
 
 ## Current Inferred Experiment Areas
 

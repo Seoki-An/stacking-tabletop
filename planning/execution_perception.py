@@ -920,7 +920,7 @@ class ExecutionPerceptionMixin:
             return
         self._set_status(phase="Return to intermediate regrasp pose")
         self._log(
-            "Returning excavator to the planned intermediate regrasp pose "
+            "Returning manipulator to the planned intermediate regrasp pose "
             "after field scan."
         )
         v = np.zeros_like(return_q)

@@ -2,7 +2,7 @@
 
 Wiki: [Overview](overview.md) | [Architecture](architecture.md) | [Planning](planning.md) | [Execution](execution.md) | [Perception](perception.md) | [Build and Run](build_and_run.md) | [Debugging](debugging.md) | [Decisions](decisions.md) | [Experiments](experiments.md) | [Glossary](glossary.md)
 
-Reset on 2026-07-22: excavator/NUC-specific terms removed or annotated;
+Reset on 2026-07-22: manipulator/NUC-specific terms removed or annotated;
 hardware-agnostic planning vocabulary kept since it is expected to carry over
 from `stacking-planner`. See `../stacking-planner/docs/llm/glossary.md` for
 the full historical glossary.
@@ -16,7 +16,7 @@ pose, support/posegen scores, and validation metadata.
 
 Fiducial marker system being considered (not yet decided or implemented) as
 the basis for scene/pose identification in this project, replacing the
-excavator project's LiDAR + ICP/SceneID approach. See [Perception](perception.md).
+manipulator project's LiDAR + ICP/SceneID approach. See [Perception](perception.md).
 
 ## BC-MCTS
 
@@ -37,14 +37,14 @@ Python extension built from the sibling `../diffsim` repo.
 
 ## Field Scan / Scene Scan
 
-In the excavator project, a scan of the pick area (field scan) or the placed
+In the manipulator project, a scan of the pick area (field scan) or the placed
 structure (scene scan). Whether this vocabulary carries over depends on the
 new perception approach; see [Perception](perception.md).
 
 ## Grasp
 
 Gripper pose/opening-angle candidate for picking or holding a stone. The
-excavator gripper model is not applicable to a manipulator end effector;
+manipulator gripper model is not applicable to a manipulator end effector;
 grasp generation will need a new/updated end-effector model.
 
 ## Height Map
@@ -78,14 +78,14 @@ Motion strategy that may put down and re-grasp a stone before final placement.
 
 ## ROS2
 
-Robot Operating System 2. Used by the excavator project for joint/pose/phase/
+Robot Operating System 2. Used by the manipulator project for joint/pose/phase/
 point-cloud/status communication with an onboard NUC. Whether and how this
 project uses ROS2 for the manipulator (e.g. a UR5e driver) is **TBD**; do not
-assume the excavator project's node/topic layout applies.
+assume the manipulator project's node/topic layout applies.
 
 ## SceneID
 
-`diffsimpy`/script workflow used by the excavator project to identify placed
+`diffsimpy`/script workflow used by the manipulator project to identify placed
 stone poses from LiDAR scene point clouds. Not confirmed applicable to this
 project; see [Perception](perception.md).
 

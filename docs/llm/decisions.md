@@ -8,10 +8,10 @@ interfaces, workflow commands, or environment assumptions.
 ## Reset on 2026-07-22
 
 This page was reset to empty as part of switching `stacking-tabletop` from an
-excavator-based to a manipulator-based (UR5e candidate) tabletop stacking
+manipulator-based to a manipulator-based (UR5e candidate) tabletop stacking
 system, desktop-only (no NUC). The prior decisions log accumulated in
 `stacking-planner` covers a large number of MCTS/diffsim tuning and
-excavator-execution decisions; many concern the shared planning core
+manipulator-execution decisions; many concern the shared planning core
 ([MCTS](glossary.md#mcts), [posegen](glossary.md#posegen), simulation
 terminology, data contracts) and remain valid reference material, while
 others (gripper tuning, NUC/ROS2 execution behavior, field-scale physical

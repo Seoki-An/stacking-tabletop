@@ -4,7 +4,7 @@ Wiki: [Overview](overview.md) | [Architecture](architecture.md) | [Planning](pla
 
 Reset on 2026-07-22. Excavator/NUC-specific gotchas were removed; see
 `../stacking-planner/docs/llm/debugging.md` for that historical content. This
-page starts with only the gotchas that are not tied to excavator hardware.
+page starts with only the gotchas that are not tied to manipulator hardware.
 
 ## General Gotchas
 
@@ -25,9 +25,9 @@ Important Python-facing submodules:
 - [`diffsimpy.posegen`](glossary.md#posegen)
 - [`diffsimpy.poseinit`](glossary.md#poseinit)
 - `diffsimpy.planner`
-- `diffsimpy.sceneid` (used by the excavator SceneID flow; relevance to this project's perception redesign is TBD)
+- `diffsimpy.sceneid` (used by the manipulator SceneID flow; relevance to this project's perception redesign is TBD)
 
 ## TODO
 
 - Re-populate this page with manipulator/perception-specific gotchas as the new system is built.
-- Confirm whether any of the excavator-era diffsim/motion-planning gotchas (grasp initialization, contact tuning) still apply once a manipulator end-effector model exists.
+- Confirm whether any of the manipulator-era diffsim/motion-planning gotchas (grasp initialization, contact tuning) still apply once a manipulator end-effector model exists.

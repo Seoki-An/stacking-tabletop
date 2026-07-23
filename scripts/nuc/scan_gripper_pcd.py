@@ -215,7 +215,7 @@ def _write_scan(save_root: Path, data: list[dict], metadata: dict) -> None:
 def build_arg_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description=(
-            "Capture LiDAR-2 point clouds of the excavator gripper and log the "
+            "Capture LiDAR-2 point clouds of the manipulator gripper and log the "
             "corresponding six-joint feedback."
         )
     )
