@@ -25,6 +25,17 @@ they carry over silently.
 ## Decided So Far For This Project
 
 - Desktop-only compute topology: no onboard NUC leg; the desktop talks directly to the manipulator and cameras.
+- **Principal-axis re-alignment of placement orientation (2026-07-23):** In the
+  default grid sampling path (`PlanarSampler._mixed_grid_poses` else-branch),
+  the base placement orientation is no longer the raw asset frame. Each stone is
+  first re-aligned so its longest principal axis → world X, middle → Y, shortest
+  → Z, then the configured `action.rotation.angles_x`/`angles_z` are applied on
+  top (world-frame, `R_angle * R_align`). Principal axes come from PCA of the
+  stone's convex-hull vertices, computed and cached by
+  `StoneObject.principal_axis_alignment()`. Scope is intentionally limited to the
+  general grid path; the floor-fill/face-normal (wall-inward) and scan-pose
+  orientation paths are unchanged. Fallback is identity when no stone index is
+  available (the non-score path).
 
 ## TODO
 

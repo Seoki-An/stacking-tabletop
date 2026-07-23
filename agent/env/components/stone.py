@@ -77,6 +77,7 @@ class StoneObject:
         self._global_hull_mesh_array = None
         self._representative_hull_mesh_array = None
         self._local_aabb = None
+        self._principal_axis_alignment = None
         self._dsf_surface_sample_cache = {}
 
     def copy(self):
@@ -95,6 +96,7 @@ class StoneObject:
         stone._global_hull_mesh_array = self._global_hull_mesh_array
         stone._representative_hull_mesh_array = self._representative_hull_mesh_array
         stone._local_aabb = self._local_aabb
+        stone._principal_axis_alignment = self._principal_axis_alignment
         stone._dsf_surface_sample_cache = {
             key: tuple(value.copy() for value in sample)
             for key, sample in self._dsf_surface_sample_cache.items()
@@ -321,6 +323,28 @@ class StoneObject:
 
         self._global_hull_mesh_array = (hull_vertices.copy(), faces.copy())
         return hull_vertices, faces
+
+    def principal_axis_alignment(self) -> np.ndarray:
+        """Quaternion (x, y, z, w) re-aligning the stone's principal axes to world.
+
+        The principal axes come from PCA of the convex-hull vertices. The returned
+        rotation maps the longest principal axis to +X, the middle to +Y, and the
+        shortest to +Z. Cached because the geometry is fixed.
+        """
+        if self._principal_axis_alignment is not None:
+            return self._principal_axis_alignment.copy()
+
+        points, _ = self.get_global_hull_mesh_array()
+        centered = points - points.mean(axis=0)
+        _, eigvecs = np.linalg.eigh(centered.T @ centered)
+        # eigh yields ascending eigenvalues (spread); reverse to longest-first.
+        axes = eigvecs[:, ::-1]  # columns: [longest, middle, shortest] in local frame
+        # World-from-local rotation has the principal axes as its rows.
+        matrix = axes.T
+        if np.linalg.det(matrix) < 0.0:
+            matrix[2] *= -1.0  # keep a proper right-handed rotation
+        self._principal_axis_alignment = Rotation.from_matrix(matrix).as_quat()
+        return self._principal_axis_alignment.copy()
 
     def get_representative_hull_mesh_array(self):
         """Return the triangulated global hull used to build representative faces."""

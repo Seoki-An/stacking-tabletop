@@ -38,10 +38,10 @@ class TargetWall:
         self.height: float = h
         self.taper: float = t
 
-        self._iou_grid_res: float = 0.04
+        self._iou_grid_res = float(cfg.get("iou_grid_resolution", 0.02 * h))
         self._iou_grid_wall_pts: np.ndarray = np.empty((0, 3), dtype=np.float64)
         self._iou_voxel_volume: float = 0.0
-        self._precompute_iou_grid()
+        self._precompute_iou_grid(self._iou_grid_res)
 
     def _precompute_iou_grid(self, resolution: float = 0.04) -> None:
         ox, oy = float(self.cfg.origin[0]), float(self.cfg.origin[1])
@@ -174,7 +174,7 @@ class TargetWallGeometry:
         plane_s = np.array([x0, y0 - l / 2, 0, 0, -np.cos(t), np.sin(t)])
         plane_e = np.array([x0 + w / 2, y0, 0, np.cos(t), 0, np.sin(t)])
         plane_n = np.array([x0, y0 + l / 2, 0, 0, np.cos(t), np.sin(t)])
-        plane_b = np.array([x0, y0, -1e-1, 0, 0, -1])
+        plane_b = np.array([x0, y0, -0.05 * h, 0, 0, -1])
         plane_t = np.array([x0, y0, h, 0, 0, 1])
         planes = np.array([plane_w, plane_s, plane_e, plane_n, plane_b, plane_t])
         A = planes[:, 3:]

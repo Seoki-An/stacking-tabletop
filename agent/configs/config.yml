@@ -6,7 +6,7 @@ algorithm:
     max_depth: 3 # deepest node depth; root = 0, so 1 = root children only (no lookahead)
     initial_depth1_steps: 10 # first N placements use depth 1; 0 disables
     tree_simulation_depth: 3 # deepest node depth run with short simulation; null -> 3. Set >= max_depth to simulate the whole tree
-    n_iter: 120
+    n_iter: 200
     max_search_time: 500.0 # seconds; null/<=0 disables the wall-clock guard
     max_children_num: 32
     validation:
@@ -88,28 +88,35 @@ environment:
       contact_fallback_to_geometry: True
   target:
     width:  0.25
-    length: 0.35
-    height: 0.20
+    length: 0.25
+    height: 0.40
     taper:  5.0 # (deg)
     origin: [0.0, 0.0]
     randomize: False
   sim:
-    dt: 0.00316  # sqrt(0.1) time scale: real gravity, 10x smaller drop height settles faster
-    energy_thresh: 0.00000001  # (0.1)^4 scale: KE ~ mass * velocity^2 ~ s^3 * s = s^4
-    settle_n_step: 400  # (steps) freeze all existing stones and let new stone settle; 0 disables; unchanged since dt already carries the time scaling
+    dt: 0.01
+    energy_thresh: 0.000001
+    settle_n_step: 400  # (steps) freeze all existing stones and let new stone settle; 0 disables
+    narrow_phase_tol: 0.01  # 0.1x normal scale; diffsim's contact.narrow_phase_tol C++ default (0.10) is larger than a tabletop stone
+    support_chain_z_tolerance: 0.005  # 0.1x normal scale; Simulator._support_chain_body_ids "same layer" z-slack
     short:
-      max_t: 1.26  # sqrt(0.1) time scale
-      min_t: 0.16  # sqrt(0.1) time scale
-      extra_n_step: 20  # (steps) unchanged; dt already carries the time scaling
-      freeze_radius: 0.15  # freeze distant non-support stones during tree search
+      max_t: 4.0
+      min_t: 0.5
+      extra_n_step: 20
+      freeze_radius: 0.10  # freeze distant non-support stones during tree search
     long:
-      max_t: 4.74  # sqrt(0.1) time scale
-      min_t: 0.95  # sqrt(0.1) time scale
-      extra_n_step: 150  # (steps) unchanged; dt already carries the time scaling
+      max_t: 15.0
+      min_t: 3.0
+      extra_n_step: 150
       freeze_radius: 0  # fully dynamic structural validation
   action:
     banned_stone_ids: []
     posegen_boundary_radius: 0.05  # (m) placed stones whose XY distance from the target-wall region exceeds this are treated as static "boundary" supports in posegen (contacts kept, equilibrium not solved); null disables
+    posegen_tolerances:  # 0.1x normal scale; posegen's obj.* geometric tolerances (see get_posegen())
+      eps_gap: 0.001
+      eps_comp: 0.001
+      eps_target: 0.005
+      narrow_phase_new_tol: 0.01
     posegen_target_only: True  # tabletop target box is the whole scene, so posegen_boundary_radius never triggers (nothing is ever outside it); force every already-placed stone to be a rigid boundary and equilibrium-solve only the new candidate each step, instead of the free-body set growing by one every placement
     debug_rejection_counts:
       enabled: True
@@ -151,7 +158,7 @@ environment:
     n_action_samples: 96
     max_pose_per_stone: 32
     rotation:
-      angles_x: [0, 90]
+      angles_x: [0, 180]
       angles_z: [0, 90, 180, 270]
     planar:
       variance: 0.0 # (m)
@@ -207,6 +214,6 @@ environment:
         config: "./agent/configs/heightmap_value.yml"
         weights: ""            # path to a .pkl/.pt state_dict; empty = untrained
   height_map:
-    resolution: [128, 128]     # (W, H) of the rendered depth image
-    margin: 0.1                # (m) padding around target wall in the ortho frame
+    resolution: [128, 128]      # (W, H) of the rendered depth image
+    margin: 0.02                # (m) padding around target wall in the ortho frame
   reset_interval: 24

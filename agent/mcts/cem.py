@@ -13,7 +13,6 @@ from .node import MCTS_Node
 from .utils import is_duplicate_action, top_actions
 
 
-DUPLICATE_XY_THRESH = 0.03
 DUPLICATE_YAW_THRESH = np.deg2rad(5.0)
 
 
@@ -231,6 +230,9 @@ class CEMRootMixin:
 
         kept_actions = []
         kept_scores = []
+        duplicate_xy_threshold = mcts_root_proposal_config(
+            self.cfg
+        ).duplicate_xy_threshold
         existing = [child.action for child in node.children if child.action is not None]
         if node.depth == 0:
             existing.extend(
@@ -242,7 +244,7 @@ class CEMRootMixin:
             if is_duplicate_action(
                 action,
                 existing + kept_actions,
-                DUPLICATE_XY_THRESH,
+                duplicate_xy_threshold,
                 DUPLICATE_YAW_THRESH,
             ):
                 continue

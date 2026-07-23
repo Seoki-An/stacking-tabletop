@@ -37,6 +37,13 @@ class Simulator:
         self._n_stone        = int(cfg.n_stone)
         self._settle_n_step  = int(cfg.sim.get("settle_n_step", 0))
         self._ground_height  = environment_ground_height(cfg)
+        # Both default to the original hardcoded excavator-scale values; a
+        # project with a different physical scale (e.g. a smaller tabletop
+        # target) can override them without touching this shared code.
+        self._diffsim_narrow_phase_tol = cfg.sim.get("narrow_phase_tol", None)
+        self._support_chain_z_tolerance = float(
+            cfg.sim.get("support_chain_z_tolerance", 0.05)
+        )
         # Simulate scene-scan-identified stones instead of freezing them. Their
         # body error_reduction_ratio is set to 0.0 so contacts among the
         # (interpenetrating) reconstructed stones get erp=max(0,0)=0 while
@@ -101,6 +108,7 @@ class Simulator:
         self.sim, self.plane = get_diffsim(
             self.fast,
             ground_height=self._ground_height,
+            narrow_phase_tol=self._diffsim_narrow_phase_tol,
         )
         self.plane_id = self.sim.get_body_ids()[0]
 
@@ -158,6 +166,7 @@ class Simulator:
         self.sim, self.plane = get_diffsim(
             self.fast,
             ground_height=self._ground_height,
+            narrow_phase_tol=self._diffsim_narrow_phase_tol,
         )
         self.plane_id = self.sim.get_body_ids()[0]
         self.body_id_sim = []
@@ -393,7 +402,11 @@ class Simulator:
         prev_stone_poses: Dict[int, np.ndarray],
         limits: SimulationLimits,
     ) -> np.ndarray:
-        sim, plane = get_diffsim(self.fast, ground_height=self._ground_height)
+        sim, plane = get_diffsim(
+            self.fast,
+            ground_height=self._ground_height,
+            narrow_phase_tol=self._diffsim_narrow_phase_tol,
+        )
         sim.add_body(plane)
 
         noisy_seq = prev_stone_seq + [stone_idx]
@@ -465,7 +478,7 @@ class Simulator:
             for nb in adjacency.get(cur, ()):
                 if nb not in stone_body_ids or nb in chain:
                     continue  # skips the ground plane and visited bodies
-                if center_z(nb) < z_cur + 0.05:
+                if center_z(nb) < z_cur + self._support_chain_z_tolerance:
                     chain.add(nb)
                     stack.append(nb)
         return chain
@@ -858,6 +871,7 @@ class Simulator:
         new_simulator.sim, new_simulator.plane = get_diffsim(
             self.fast,
             ground_height=self._ground_height,
+            narrow_phase_tol=self._diffsim_narrow_phase_tol,
         )
 
         new_simulator.n_step = self.n_step

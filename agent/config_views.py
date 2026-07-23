@@ -539,6 +539,10 @@ class MCTSRootProposalConfig:
         return float(self.root.get("mutation_xy_std", 0.12))
 
     @property
+    def duplicate_xy_threshold(self) -> float:
+        return float(self.root.get("duplicate_xy_threshold", 0.03))
+
+    @property
     def mutation_xy_mode(self) -> str:
         return str(self.root.get("mutation_xy_mode", "gaussian"))
 

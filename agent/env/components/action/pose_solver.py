@@ -35,7 +35,9 @@ class PoseSolver:
         self.cfg = cfg
         self.schedule = schedule or PoseSolverSchedule()
         self.ground_height = environment_ground_height(cfg)
-        self.context: posegen.Context = get_posegen(ground_height=self.ground_height)
+        self.context: posegen.Context = get_posegen(
+            cfg=cfg, ground_height=self.ground_height
+        )
         self.body_id_to_stone_idx: dict[int, int] = {}
         self._scene_fingerprint: Optional[tuple] = None
 
@@ -147,7 +149,7 @@ class PoseSolver:
         obj.set_k_wrench(ramp * np.diag([1, 1, 1, 10, 10, 10]))
         obj.k_comp = 10.0 * ramp
         obj.k_gap_c = 150.0 * ramp + 40.0 + t * 1e5 * c_gap
-        obj.k_gap = 10.0 * sine
+        obj.k_gap = 20.0 * sine
         obj.k_target = 5.0 * anti_ramp
         obj.k_xy = anti_ramp
         obj.k_potential = 0.10 + 0.05 * anti_ramp

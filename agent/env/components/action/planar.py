@@ -600,11 +600,29 @@ class PlanarPoseSampler:
                 ).as_quat()
             else:
                 angle_x, angle_z = angles[i % len(angles)]
-                pose[2:] = Rotation.from_euler(
+                r_angle = Rotation.from_euler(
                     "xyz", [angle_x, 0, angle_z], degrees=True
-                ).as_quat()
+                )
+                r_align = self._principal_axis_rotation(inventory, stone_idx)
+                # Re-align stone by principal axes first, then apply the angles.
+                pose[2:] = (r_angle * r_align).as_quat()
             poses.append(pose)
         return poses
+
+    def _principal_axis_rotation(
+        self,
+        inventory: Optional[InventoryManager],
+        stone_idx: Optional[int],
+    ) -> Rotation:
+        """Rotation aligning the stone's principal axes (long/mid/short) to X/Y/Z.
+
+        Falls back to identity when no specific stone is available (e.g. the
+        non-score path that samples without a stone index).
+        """
+        if inventory is None or stone_idx is None:
+            return Rotation.identity()
+        stone = inventory.stones[stone_idx]
+        return Rotation.from_quat(stone.principal_axis_alignment())
 
     def _yaw_angle_for_xy(
         self,

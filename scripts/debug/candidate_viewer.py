@@ -567,6 +567,16 @@ class CandidateViewer:
 
         return xy_min, xy_max
 
+    def _origin_frame_size(self, wall_cfg: dict) -> float:
+        """Axis-gizmo size at the world origin, proportional to target wall
+        height (matches the original fixed size=0.4 at excavator-scale
+        height=2.0, so it scales down with a smaller tabletop target)."""
+        try:
+            wall_height = float(wall_cfg.get("height", 2.0))
+        except (TypeError, ValueError):
+            wall_height = 2.0
+        return max(0.01, 0.2 * wall_height)
+
     def _sceneid_ground_grid(
         self,
         xy_min: np.ndarray,
@@ -1607,7 +1617,9 @@ class CandidateViewer:
             transparent=True,
         )
 
-        frame = o3d.geometry.TriangleMesh.create_coordinate_frame(size=0.4)
+        frame = o3d.geometry.TriangleMesh.create_coordinate_frame(
+            size=self._origin_frame_size(wall_cfg)
+        )
         frame.compute_vertex_normals()
         self._append_video_mesh(entries, "coord_frame", frame, [1.0, 1.0, 1.0, 1.0])
 
@@ -1768,7 +1780,9 @@ class CandidateViewer:
             self._add_score_map_overlay(score_map, score_map_z)
 
         # Coordinate frame
-        frame = o3d.geometry.TriangleMesh.create_coordinate_frame(size=0.4)
+        frame = o3d.geometry.TriangleMesh.create_coordinate_frame(
+            size=self._origin_frame_size(wall_cfg)
+        )
         frame.compute_vertex_normals()
         mat_frame = rendering.MaterialRecord()
         mat_frame.shader = "defaultLit"

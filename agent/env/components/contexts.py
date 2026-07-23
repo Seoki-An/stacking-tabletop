@@ -88,9 +88,26 @@ def _diffsim_config_path(
 def get_diffsim(
     fast: bool = False,
     ground_height: float | None = None,
+    narrow_phase_tol: float | None = None,
 ) -> Tuple[diffsim.Context, diffsim.BodyConfig]:
     path = _diffsim_config_path(fast, ground_height)
-    return diffsim.Context(path), diffsim.BodyConfig(path)
+    if narrow_phase_tol is None:
+        return diffsim.Context(path), diffsim.BodyConfig(path)
+    # contact.narrow_phase_tol has no YAML key (only error_reduction_ratio is
+    # parsed from diffsim.yml/diffsim_fast.yml), so overriding it requires
+    # building GlobalConfig directly and mutating it before constructing
+    # Context, the same way get_posegen() overrides posegen's obj.* fields.
+    global_config = diffsim.GlobalConfig(path)
+    contact = global_config.contact
+    contact.narrow_phase_tol = float(narrow_phase_tol)
+    global_config.contact = contact
+    # Context(global_config) does not auto-add bodies from the YAML's `body:`
+    # list the way Context(path) does, so add the plane explicitly to keep
+    # get_body_ids()[0] pointing at it, matching Simulator.reset()'s assumption.
+    context = diffsim.Context(global_config)
+    plane = diffsim.BodyConfig(path)
+    context.add_body(plane)
+    return context, plane
 
 
 def get_diffsim_plane_config(
@@ -114,17 +131,24 @@ def _set_posegen_ground_height_if_supported(
                 return
 
 
-def get_posegen(ground_height: float | None = None) -> posegen.Context:
+def get_posegen(cfg=None, ground_height: float | None = None) -> posegen.Context:
     config = posegen.Config()
     _set_posegen_ground_height_if_supported(config, ground_height)
 
+    # Defaults below match the original hardcoded excavator-scale values;
+    # environment.action.posegen_tolerances lets a project (e.g. a smaller
+    # tabletop target) override them without touching this shared code.
+    tolerances = cfg.action.get("posegen_tolerances", {}) if cfg is not None else {}
+
     context = posegen.Context(config)
-    context.config().obj.eps_gap = 1e-3
-    context.config().obj.eps_comp = 1e-3
-    context.config().obj.eps_target = 0.005
+    context.config().obj.eps_gap = float(tolerances.get("eps_gap", 1e-2))
+    context.config().obj.eps_comp = float(tolerances.get("eps_comp", 1e-2))
+    context.config().obj.eps_target = float(tolerances.get("eps_target", 0.05))
     context.config().obj.k_box = 20.0
     context.config().obj.w_box = 2.0
-    context.config().obj.narrow_phase_new_tol = 0.01
+    context.config().obj.narrow_phase_new_tol = float(
+        tolerances.get("narrow_phase_new_tol", 0.1)
+    )
     return context
 
 def get_sceneid(
